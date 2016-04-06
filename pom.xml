@@ -11,7 +11,7 @@
     <modules>
         <module>pagerecognizer</module>
         <module>linkaccesscounter</module>
-        <module>pagerecognizer</module>
+        <module>pagepresenter</module>
         <module>dispatcher</module>
     </modules>
 
