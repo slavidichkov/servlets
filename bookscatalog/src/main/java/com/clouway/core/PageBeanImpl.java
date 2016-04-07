@@ -10,14 +10,16 @@ public class PageBeanImpl<T> implements PageBean{
     private int firstIndex;
     private int lastIndex;
     private int pageSize = 10;
-    private List<T> rows = new ArrayList<T>();
+    private List<T> rows = null;
 
-    public PageBeanImpl(List<T> list) {
-        this.rows=list;
+    public void setList(List list) {
+        if (rows==null){
+            rows= new ArrayList<T>();
+            rows.addAll(list);
+        }
     }
 
-    public PageBeanImpl(List<T> list, int pageSize) {
-        this.rows=list;
+    public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
 

@@ -1,8 +1,10 @@
 package com.clouway.server;
 
+import com.clouway.http.BooksCatalog;
 import com.clouway.http.HttpServletContextListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.resource.Resource;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
