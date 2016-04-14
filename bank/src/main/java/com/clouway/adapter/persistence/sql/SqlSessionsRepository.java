@@ -28,8 +28,7 @@ public class SqlSessionsRepository implements SessionsRepository {
   public Optional<Session> getSession(String sessionID) {
     Optional<Connection> optConnection = getConnection(dataSource);
     if (optConnection.isPresent()) {
-      Session session = DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM sessions WHERE ID=?", new SessionResultSetBuilder(), sessionID);
-      return Optional.of(session);
+      return DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM sessions WHERE ID=?", new SessionResultSetBuilder(), sessionID);
     }
     return Optional.absent();
   }

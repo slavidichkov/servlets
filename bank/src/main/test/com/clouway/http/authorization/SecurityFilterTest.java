@@ -1,8 +1,7 @@
-package com.clouway.http;
+package com.clouway.http.authorization;
 
 
 import com.clouway.core.*;
-import com.clouway.http.authorization.SecurityFilter;
 import com.clouway.http.fakeclasses.FakeCurrentUser;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;

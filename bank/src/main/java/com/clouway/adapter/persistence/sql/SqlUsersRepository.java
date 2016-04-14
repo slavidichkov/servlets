@@ -28,15 +28,14 @@ public class SqlUsersRepository implements UsersRepository {
   public Optional<User> getUser(String email) {
     Optional<Connection> optConnection=getConnection(dataSource);
     if (optConnection.isPresent()) {
-      User user = DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM users WHERE email=?", new UserResultSetBuilder(), email);
-      return Optional.of(user);
+      return DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM users WHERE email=?", new UserResultSetBuilder(), email);
     }
     return Optional.absent();
   }
 
   private Optional<Connection> getConnection(DataSource dataSource){
     try {
-      Optional.of(dataSource.getConnection());
+      return Optional.of(dataSource.getConnection());
     } catch (SQLException e) {
       e.printStackTrace();
     }

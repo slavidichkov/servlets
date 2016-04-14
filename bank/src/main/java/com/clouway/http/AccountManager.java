@@ -49,7 +49,11 @@ public class AccountManager extends HttpServlet {
         String errorMessage=" amount is not correct";
         if (isValidAmount(amount) && "withdraw".equals(transactionType)) {
             errorMessage="";
-             accountsRepository.withdraw(user, Double.valueOf(amount));
+            try {
+                accountsRepository.withdraw(user, Double.valueOf(amount));
+            } catch (InsufficientAvailability ex) {
+                errorMessage = ex.getMessage();
+            }
         }
         if (isValidAmount(amount) && "deposit".equals(transactionType)) {
             errorMessage="";

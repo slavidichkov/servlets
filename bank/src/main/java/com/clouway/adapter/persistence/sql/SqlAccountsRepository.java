@@ -1,6 +1,8 @@
 package com.clouway.adapter.persistence.sql;
 
 import com.clouway.core.AccountsRepository;
+import com.clouway.core.DependencyManager;
+import com.clouway.core.InsufficientAvailability;
 import com.clouway.core.User;
 
 import javax.sql.DataSource;
@@ -69,29 +71,34 @@ public class SqlAccountsRepository implements AccountsRepository{
         return newBalance;
     }
 
-    public Double withdraw(User user, Double amount) {
+    public Double withdraw(User user, Double amount) throws InsufficientAvailability {
         Double balance=getBalance(user);
-        Double newBalance=balance-amount;
         Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement statement=connection.prepareStatement("UPDATE accounts SET balance=? WHERE userEmail=?");
-            statement.setDouble(1,newBalance);
-            statement.setString(2,user.email);
-            statement.execute();
-            statement.close();
-        } catch (SQLException e) {
-            return new Double(0);
-        }finally {
-            if (connection!=null){
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+        if (amount < balance){
+            Double newBalance=balance-amount;
+            try {
+                connection = dataSource.getConnection();
+                PreparedStatement statement=connection.prepareStatement("UPDATE accounts SET balance=? WHERE userEmail=?");
+                statement.setDouble(1,newBalance);
+                statement.setString(2,user.email);
+                statement.execute();
+                statement.close();
+            } catch (SQLException e) {
+                return new Double(0);
+            }finally {
+                if (connection!=null){
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+            return newBalance;
+        }else {
+            throw new InsufficientAvailability("Can not withdraw "+amount+" because balance is " +balance+"");
         }
-        return newBalance;
+
     }
 
     public void register(User user) {

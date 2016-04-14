@@ -15,14 +15,13 @@ public class CurrentUserImpl implements CurrentUser{
 
 
     public Optional<User> getUser() {
-        Optional<User> user=null;
         Optional<Session> optSession = sessionRepository.getSession(sessionFinder.getId());
         if (optSession.isPresent()) {
             Session session=optSession.get();
             Optional<User> optUser = userRepository.getUser(session.userEmail);
-            user= optUser;
+            return optUser;
         }
-        return user;
+        return Optional.absent();
     }
 
     public String getSid() {

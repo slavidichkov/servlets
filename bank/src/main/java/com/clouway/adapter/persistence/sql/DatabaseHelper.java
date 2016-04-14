@@ -1,5 +1,7 @@
 package com.clouway.adapter.persistence.sql;
 
+import com.google.common.base.Optional;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,24 +36,18 @@ public class DatabaseHelper {
     return autoIncrementKey;
   }
 
-  public static <T> T executeQuery(Connection connection, String query, ResultSetBuilder<T> resultSetBuilder, Object... params) {
-    T object = null;
-
+  public static <T>T executeQuery(Connection connection, String query, ResultSetBuilder<T> resultSetBuilder, Object... params) {
+    T object=null;
     try {
       PreparedStatement preparedStatement = connection.prepareStatement(query);
       fillPreparedStatement(preparedStatement, params);
       ResultSet resultSet = preparedStatement.executeQuery();
-
-      if (resultSet.next()) {
-        object = resultSetBuilder.build(resultSet);
-      }
-
+      object = resultSetBuilder.build(resultSet);
       preparedStatement.close();
       connection.close();
     } catch (SQLException e) {
       e.printStackTrace();
     }
-
     return object;
   }
 

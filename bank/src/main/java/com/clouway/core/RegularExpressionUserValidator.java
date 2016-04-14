@@ -10,7 +10,7 @@ public class RegularExpressionUserValidator implements UserValidator {
     public Map<String, String> validate(ValidationUser user) {
         Map<String, String> errors = new HashMap<String, String>();
         if (user.name != null && !isOnlyLetters(user.name)) {
-            errors.put(user.nameErrorField, "have to be more than 3 symbols and must contain only letters");
+            errors.put(user.nameErrorField, "have to be betwin 3 and 15 symbols and must contain only letters");
         }
         if (user.city != null && !isOnlyLetters(user.city)) {
             errors.put(user.cityErrorField, "have to be betwin 3 and 15 symbols and must contain only letters");
@@ -34,7 +34,7 @@ public class RegularExpressionUserValidator implements UserValidator {
     }
 
     private boolean isOnlyLetters(String value) {
-        return value.matches("^[a-zA-Z][a-zA-Z\\s-]+[a-zA-Z]$");
+        return value.matches("^([a-zA-Z]){3,10}$");
     }
 
     private boolean isValidAge(String value) {
