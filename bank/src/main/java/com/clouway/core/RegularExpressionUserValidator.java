@@ -46,7 +46,7 @@ public class RegularExpressionUserValidator implements UserValidator {
     }
 
     private boolean isCorrectEmail(String value) {
-        return value.matches("^[A-Za-z0-9-+]*@[A-Za-z0-9-]*(.[A-Za-z]{2,})$");
+        return value.matches("^[A-Za-z0-9-+]+@[A-Za-z0-9-]+(\\.[A-Za-z]{2,})$");
     }
 
     private boolean areSame(String a, String b) {

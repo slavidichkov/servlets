@@ -76,7 +76,7 @@ public class AccountManagerTest {
     }
 
     @Test
-    public void userWithdraw() throws IOException, ServletException {
+    public void userWithdraw() throws IOException, ServletException, InsufficientAvailability {
         final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
         final Cookie cookie=new Cookie("sid","1234567890");
         request.addCookies(cookie);
