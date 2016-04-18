@@ -17,6 +17,8 @@ import static org.junit.Assert.assertThat;
  */
 public class SqlSessionsRepositoryTest {
   private MysqlConnectionPoolDataSource dataSource;
+  private SqlSessionsRepository sessionsRepository;
+  private SqlUsersRepository usersRepository;
 
   @Before
   public void setUp() {
@@ -25,12 +27,12 @@ public class SqlSessionsRepositoryTest {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
+    sessionsRepository = new SqlSessionsRepository(new DatabaseHelper(dataSource));
+    usersRepository=new SqlUsersRepository(new DatabaseHelper(dataSource));
   }
 
   @Test
   public void registeredSession() {
-    SqlSessionsRepository sessionsRepository = new SqlSessionsRepository(dataSource);
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
     usersRepository.register(new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23));
     Session session = new Session("qwertyuiop", "ivan@abv.bg", 123456789);
     sessionsRepository.register(session);
@@ -44,8 +46,6 @@ public class SqlSessionsRepositoryTest {
 
   @Test
   public void removeSession() {
-    SqlSessionsRepository sessionsRepository = new SqlSessionsRepository(dataSource);
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
     usersRepository.register(new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23));
     Session session = new Session("qwertyuiop", "ivan@abv.bg", 123456789);
 

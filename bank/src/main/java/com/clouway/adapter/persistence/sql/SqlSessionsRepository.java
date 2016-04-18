@@ -4,48 +4,39 @@ import com.clouway.core.Session;
 import com.clouway.core.SessionsRepository;
 import com.google.common.base.Optional;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class SqlSessionsRepository implements SessionsRepository {
-  private final DataSource dataSource;
+  private final DatabaseHelper databaseHelper;
 
-  public SqlSessionsRepository(DataSource dataSource) {
-    this.dataSource = dataSource;
+  public SqlSessionsRepository(DatabaseHelper databaseHelper) {
+    this.databaseHelper = databaseHelper;
   }
 
   public void register(Session session) {
-    Optional<Connection> optConnection = getConnection(dataSource);
-    if (optConnection.isPresent()) {
-      DatabaseHelper.executeQuery(optConnection.get(), "INSERT INTO sessions(ID,userEmail,sessionExpiresOn) VALUES (?,?,?)", session.ID, session.userEmail, session.sessionExpiresOn);
+    try {
+      databaseHelper.executeQuery("INSERT INTO sessions(ID,userEmail,sessionExpiresOn) VALUES (?,?,?)", session.ID, session.userEmail, session.sessionExpiresOn);
+    } catch (SQLException e) {
+      throw new DatabaseException();
     }
   }
 
   public Optional<Session> getSession(String sessionID) {
-    Optional<Connection> optConnection = getConnection(dataSource);
-    if (optConnection.isPresent()) {
-      return DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM sessions WHERE ID=?", new SessionResultSetBuilder(), sessionID);
+    try {
+      return databaseHelper.executeQuery("SELECT * FROM sessions WHERE ID=?", new SessionResultSetBuilder(), sessionID);
+    } catch (SQLException e) {
+      throw new DatabaseException("");
     }
-    return Optional.absent();
   }
 
   public void remove(String sessionID) {
-    Optional<Connection> optConnection = getConnection(dataSource);
-    if (optConnection.isPresent()){
-      DatabaseHelper.executeQuery(optConnection.get(),"DELETE FROM sessions WHERE ID=?", sessionID);
-    }
-  }
-
-  private Optional<Connection> getConnection(DataSource dataSource){
     try {
-      return Optional.of(dataSource.getConnection());
+      databaseHelper.executeQuery("DELETE FROM sessions WHERE ID=?", sessionID);
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new DatabaseException();
     }
-    return Optional.absent();
   }
 }

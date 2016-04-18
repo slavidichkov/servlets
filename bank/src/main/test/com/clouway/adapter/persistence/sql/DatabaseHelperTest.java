@@ -29,6 +29,8 @@ public class DatabaseHelperTest  {
 
   @Mock
   ResultSetBuilder<User> resultSetBuilder;
+  private SqlUsersRepository usersRepository;
+  private DatabaseHelper databaseHelper;
 
   @Before
   public void setUp() {
@@ -37,27 +39,24 @@ public class DatabaseHelperTest  {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "users", "sessions", "accounts").cleanUp();
+    databaseHelper = new DatabaseHelper(dataSource);
+    usersRepository=new SqlUsersRepository(databaseHelper);
   }
 
   @Test
   public void existingObject() throws SQLException {
-    Connection connection=dataSource.getConnection();
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
 
-    long autoIncrementKey=DatabaseHelper.executeQuery(connection, "insert into users(userName,nickName,email,password,city,age) values(?,?,?,?,?,?)", user.name, user.nickName, user.email, user.password, user.city, user.age);
+    long autoIncrementKey=databaseHelper.executeQuery("insert into users(userName,nickName,email,password,city,age) values(?,?,?,?,?,?)", user.name, user.nickName, user.email, user.password, user.city, user.age);
     assertThat(autoIncrementKey,is(equalTo(-1L)));
   }
 
   @Test
   public void existingObject1() throws SQLException {
-    Connection connection=dataSource.getConnection();
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
     usersRepository.register(user);
 
-    Optional<User> optUser = DatabaseHelper.executeQuery(connection,"select * from users where userName=?",new FakeUserResultSetBuilder(),"ivan");
+    Optional<User> optUser = databaseHelper.executeQuery("select * from users where userName=?",new FakeUserResultSetBuilder(),"ivan");
     assertThat(optUser.isPresent(),is(true));
   }
-
 }

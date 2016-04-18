@@ -11,14 +11,10 @@ import java.sql.SQLException;
  */
 public class UserResultSetBuilder implements ResultSetBuilder<Optional<User>> {
 
-  public Optional<User> build(ResultSet resultSet) {
-    try {
-      if (resultSet.next()) {
-        User user = new User(resultSet.getString("userName"), resultSet.getString("nickName"), resultSet.getString("email"), resultSet.getString("password"), resultSet.getString("city"), resultSet.getInt("age"));
-        return Optional.of(user);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
+  public Optional<User> build(ResultSet resultSet) throws SQLException {
+    if (resultSet.next()) {
+      User user = new User(resultSet.getString("userName"), resultSet.getString("nickName"), resultSet.getString("email"), resultSet.getString("password"), resultSet.getString("city"), resultSet.getInt("age"));
+      return Optional.of(user);
     }
     return Optional.absent();
   }

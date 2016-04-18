@@ -1,7 +1,6 @@
 package com.clouway.adapter.persistence.sql;
 
 import com.clouway.core.AccountsRepository;
-import com.clouway.core.DependencyManager;
 import com.clouway.core.InsufficientAvailability;
 import com.clouway.core.User;
 
@@ -20,8 +19,8 @@ public class SqlAccountsRepository implements AccountsRepository{
 
     public Double getBalance(User user) {
         Connection connection = null;
-        Double balance=new Double(0);
         try {
+            Double balance=new Double(0);
             connection = dataSource.getConnection();
             PreparedStatement statement=connection.prepareStatement("SELECT balance FROM accounts WHERE userEmail=?");
             statement.setString(1,user.email);
@@ -31,18 +30,16 @@ public class SqlAccountsRepository implements AccountsRepository{
             }
             return balance;
         } catch (SQLException e) {
-
+            throw new DatabaseException();
         }finally {
             if (connection!=null){
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new DatabaseException();
                 }
             }
         }
-        balance=new Double(0);
-        return balance;
     }
 
     public Double deposit(User user, Double amount) {
@@ -56,19 +53,18 @@ public class SqlAccountsRepository implements AccountsRepository{
             statement.setString(2,user.email);
             statement.execute();
             statement.close();
+            return newBalance;
         } catch (SQLException e) {
-            System.out.println("exeption");
-            return new Double(0);
+            throw new DatabaseException();
         }finally {
             if (connection!=null){
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new DatabaseException();
                 }
             }
         }
-        return newBalance;
     }
 
     public Double withdraw(User user, Double amount) throws InsufficientAvailability {
@@ -83,22 +79,21 @@ public class SqlAccountsRepository implements AccountsRepository{
                 statement.setString(2,user.email);
                 statement.execute();
                 statement.close();
+                return newBalance;
             } catch (SQLException e) {
-                return new Double(0);
+                throw new DatabaseException();
             }finally {
                 if (connection!=null){
                     try {
                         connection.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        throw new DatabaseException();
                     }
                 }
             }
-            return newBalance;
         }else {
             throw new InsufficientAvailability("Can not withdraw "+amount+" because balance is " +balance+"");
         }
-
     }
 
     public void register(User user) {
@@ -111,13 +106,13 @@ public class SqlAccountsRepository implements AccountsRepository{
             statement.execute();
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseException();
         }finally {
             if (connection!=null){
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new DatabaseException();
                 }
             }
         }

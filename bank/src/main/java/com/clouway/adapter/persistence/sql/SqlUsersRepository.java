@@ -4,41 +4,31 @@ import com.clouway.core.User;
 import com.clouway.core.UsersRepository;
 import com.google.common.base.Optional;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class SqlUsersRepository implements UsersRepository {
-  private final DataSource dataSource;
+  private final DatabaseHelper databaseHelper;
 
-  public SqlUsersRepository(DataSource dataSource) {
-    this.dataSource = dataSource;
+  public SqlUsersRepository(DatabaseHelper databaseHelper) {
+    this.databaseHelper = databaseHelper;
   }
 
   public void register(User user) {
-    Optional<Connection> optConnection=getConnection(dataSource);
-    if (optConnection.isPresent()) {
-      DatabaseHelper.executeQuery(optConnection.get(), "insert into users(userName,nickName,email,password,city,age) values(?,?,?,?,?,?)", user.name, user.nickName, user.email, user.password, user.city, user.age);
+    try {
+      databaseHelper.executeQuery("insert into users(userName,nickName,email,password,city,age) values(?,?,?,?,?,?)", user.name, user.nickName, user.email, user.password, user.city, user.age);
+    } catch (SQLException e) {
+      throw new DatabaseException();
     }
   }
 
   public Optional<User> getUser(String email) {
-    Optional<Connection> optConnection=getConnection(dataSource);
-    if (optConnection.isPresent()) {
-      return DatabaseHelper.executeQuery(optConnection.get(), "SELECT * FROM users WHERE email=?", new UserResultSetBuilder(), email);
-    }
-    return Optional.absent();
-  }
-
-  private Optional<Connection> getConnection(DataSource dataSource){
     try {
-      return Optional.of(dataSource.getConnection());
+      return databaseHelper.executeQuery("SELECT * FROM users WHERE email=?", new UserResultSetBuilder(), email);
     } catch (SQLException e) {
-      e.printStackTrace();
+      throw new DatabaseException();
     }
-    return Optional.absent();
   }
 }

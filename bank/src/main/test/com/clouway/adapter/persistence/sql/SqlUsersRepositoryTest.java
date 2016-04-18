@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
  */
 public class SqlUsersRepositoryTest {
   private MysqlConnectionPoolDataSource dataSource;
+  private SqlUsersRepository usersRepository;
 
   @Before
   public void setUp(){
@@ -24,11 +25,11 @@ public class SqlUsersRepositoryTest {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
+    usersRepository=new SqlUsersRepository(new DatabaseHelper(dataSource));
   }
 
   @Test
   public void registerUser() {
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
 
     usersRepository.register(user);
@@ -42,8 +43,6 @@ public class SqlUsersRepositoryTest {
 
   @Test
   public void getUnregisteredUser() {
-    SqlUsersRepository usersRepository=new SqlUsersRepository(dataSource);
-
     Optional<User> optUser = usersRepository.getUser("ivan@abv.bg");
     assertThat(optUser.isPresent(),is(false));
   }

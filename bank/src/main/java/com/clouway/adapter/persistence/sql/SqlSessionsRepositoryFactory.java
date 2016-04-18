@@ -13,6 +13,6 @@ public class SqlSessionsRepositoryFactory implements SessionsRepositoryFactory {
         dataSource.setURL("jdbc:mysql://localhost:3306/bank");
         dataSource.setUser("root");
         dataSource.setPassword("clouway.com");
-        return new SqlSessionsRepository(dataSource);
+        return new SqlSessionsRepository(new DatabaseHelper(dataSource));
     }
 }

@@ -13,6 +13,7 @@ public class SqlUsersRepositoryFactory implements UsersRepositoryFactory {
         dataSource.setURL("jdbc:mysql://localhost:3306/bank");
         dataSource.setUser("root");
         dataSource.setPassword("clouway.com");
-        return new SqlUsersRepository(dataSource);
+
+        return new SqlUsersRepository(new DatabaseHelper(dataSource));
     }
 }

@@ -1,5 +1,6 @@
 package com.clouway.http;
 
+import com.clouway.adapter.persistence.sql.DatabaseException;
 import com.clouway.core.LoggedUsers;
 import com.clouway.core.*;
 import com.clouway.http.authorization.CookieSessionFinder;
@@ -27,7 +28,12 @@ public class AccountManager extends HttpServlet {
         currentUser.set(new CookieSessionFinder(req.getCookies()));
         Optional<User> optUser = currentUser.getUser();
         User user= optUser.get();
-        Double userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(user);
+        Double userBalance = null;
+        try{
+            userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(user);
+        }catch (DatabaseException dex){
+            resp.sendRedirect("/errorPage");
+        }
          printPage(resp.getWriter(), userBalance,"");
     }
 
@@ -50,11 +56,18 @@ public class AccountManager extends HttpServlet {
                 accountsRepository.withdraw(user, Double.valueOf(amount));
             } catch (InsufficientAvailability ex) {
                 errorMessage = ex.getMessage();
+            }catch (DatabaseException dex){
+                resp.sendRedirect("/errorPage");
             }
         }
         if (isValidAmount(amount) && "deposit".equals(transactionType)) {
             errorMessage="";
-             accountsRepository.deposit(user, Double.valueOf(amount));
+            try{
+                accountsRepository.deposit(user, Double.valueOf(amount));
+            }catch (DatabaseException dex){
+                resp.sendRedirect("/errorPage");
+            }
+
         }
         printPage(resp.getWriter(),accountsRepository.getBalance(user), errorMessage);
     }
