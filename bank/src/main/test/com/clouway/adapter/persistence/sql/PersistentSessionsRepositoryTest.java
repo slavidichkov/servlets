@@ -1,12 +1,15 @@
 package com.clouway.adapter.persistence.sql;
 
 import com.clouway.adapter.persistence.sql.util.DatabaseCleaner;
+import com.clouway.adapter.persistence.sql.util.TestingDatasource;
 import com.clouway.core.Session;
 import com.clouway.core.User;
 import com.google.common.base.Optional;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.sql.DataSource;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,19 +19,15 @@ import static org.junit.Assert.assertThat;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class PersistentSessionsRepositoryTest {
-  private MysqlConnectionPoolDataSource dataSource;
   private PersistentSessionsRepository sessionsRepository;
   private PersistentUsersRepository usersRepository;
 
   @Before
   public void setUp() {
-    dataSource = new MysqlConnectionPoolDataSource();
-    dataSource.setURL("jdbc:mysql://localhost:3306/banktests");
-    dataSource.setUser("root");
-    dataSource.setPassword("clouway.com");
+    DataSource dataSource = new TestingDatasource().get();
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
     sessionsRepository = new PersistentSessionsRepository(new DatabaseHelper(dataSource));
-    usersRepository=new PersistentUsersRepository(new DatabaseHelper(dataSource));
+    usersRepository = new PersistentUsersRepository(new DatabaseHelper(dataSource));
   }
 
   @Test
