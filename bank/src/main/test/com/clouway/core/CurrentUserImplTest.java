@@ -66,10 +66,7 @@ public class CurrentUserImplTest {
   }
 
   @Test
-  public void notExistingSession() {
-    final Session session = new Session("123456789", "nikola3423@abv.bg", 1234556778);
-    final User user=new User("nikola","nikola123","nikola3423@abv.bg","nikola321","sliven",23);
-
+  public void getUserFromNotExistingSession() {
     context.checking(new Expectations() {{
       oneOf(sessionFinder).getId();
       will(returnValue("123456789"));
