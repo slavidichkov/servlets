@@ -7,49 +7,45 @@ import java.util.Map;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class RegularExpressionUserValidator implements UserValidator {
-    public Map<String, String> validate(ValidationUser user) {
-        Map<String, String> errors = new HashMap<String, String>();
-        if (user.name != null && !isOnlyLetters(user.name)) {
-            errors.put(user.nameErrorField, "have to be betwin 3 and 15 symbols and must contain only letters");
-        }
-        if (user.city != null && !isOnlyLetters(user.city)) {
-            errors.put(user.cityErrorField, "have to be betwin 3 and 15 symbols and must contain only letters");
-        }
-        if (user.nickName != null && !isOnlyLettersAndDigits(user.nickName)) {
-            errors.put(user.nickNameErrorField, "have to be betwin 6 and 18 symbols and must contain only digits and letter");
-        }
-        if (user.password != null && !isOnlyLettersAndDigits(user.password)) {
-            errors.put(user.passwordErrorField, "have to be betwin 6 and 18 symbols and must contain only digits and letter");
-        }
-        if (user.age != null && !isValidAge(user.age)) {
-            errors.put(user.ageErrorField, "have to be betwin 18 and 118");
-        }
-        if (user.email != null && !isCorrectEmail(user.email)) {
-            errors.put(user.emailErrorField, "is incorrect");
-        }
-        if (user.confirmPassword != null && !areSame(user.password, user.confirmPassword)) {
-            errors.put(user.confirmPasswordErrorField, "both password are not the same");
-        }
-        return errors;
-    }
+  public Map<String, String> validate(ValidationUser user) {
+    Map<String, String> errors = new HashMap<String, String>();
+    onlyLetters(user.name, user.nameErrorField, errors);
+    onlyLetters(user.city, user.cityErrorField, errors);
+    onlyLettersAndDigits(user.nickName, user.nickNameErrorField, errors);
+    onlyLettersAndDigits(user.password, user.passwordErrorField, errors);
+    validAge(user.age, user.ageErrorField, errors);
+    correctEmail(user.email, user.emailErrorField, errors);
+    same(user.password, user.confirmPassword, user.confirmPasswordErrorField, errors);
+    return errors;
+  }
 
-    private boolean isOnlyLetters(String value) {
-        return value.matches("^([a-zA-Z]){3,10}$");
+  private void onlyLetters(String value, String errorField, Map<String, String> errors) {
+    if (value != null && !value.matches("^([a-zA-Z]){3,10}$")) {
+      errors.put(errorField, "have to be betwin 3 and 15 symbols and must contain only letters");
     }
+  }
 
-    private boolean isValidAge(String value) {
-        return value.matches("^(1[89]|[2-9][0-9]|1[10][0-8])$");
+  private void onlyLettersAndDigits(String value, String errorField, Map<String, String> errors) {
+    if (value != null && !value.matches("^([a-zA-Z0-9]){6,18}$")) {
+      errors.put(errorField, "have to be betwin 6 and 18 symbols and must contain only digits and letter");
     }
+  }
 
-    private boolean isOnlyLettersAndDigits(String value) {
-        return value.matches("^([a-zA-Z0-9]){6,18}$");
+  private void validAge(String value, String errorField, Map<String, String> errors) {
+    if (value != null && !value.matches("^(1[89]|[2-9][0-9]|1[10][0-8])$")) {
+      errors.put(errorField, "have to be betwin 18 and 118");
     }
+  }
 
-    private boolean isCorrectEmail(String value) {
-        return value.matches("^[A-Za-z0-9-+]+@[A-Za-z0-9-]+(\\.[A-Za-z]{2,})$");
+  private void correctEmail(String value, String errorField, Map<String, String> errors) {
+    if (value != null && !value.matches("^[A-Za-z0-9-+]+@[A-Za-z0-9-]+(\\.[A-Za-z]{2,})$")) {
+      errors.put(errorField, "is incorrect");
     }
+  }
 
-    private boolean areSame(String a, String b) {
-        return a.equals(b);
+  private void same(String a, String b, String errorField, Map<String, String> errors) {
+    if (a !=null && b!=null && !a.equals(b)) {
+      errors.put(errorField,  "both password are not the same");
     }
+  }
 }
