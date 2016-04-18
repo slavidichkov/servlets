@@ -15,10 +15,10 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class SqlSessionsRepositoryTest {
+public class PersistentSessionsRepositoryTest {
   private MysqlConnectionPoolDataSource dataSource;
-  private SqlSessionsRepository sessionsRepository;
-  private SqlUsersRepository usersRepository;
+  private PersistentSessionsRepository sessionsRepository;
+  private PersistentUsersRepository usersRepository;
 
   @Before
   public void setUp() {
@@ -27,8 +27,8 @@ public class SqlSessionsRepositoryTest {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
-    sessionsRepository = new SqlSessionsRepository(new DatabaseHelper(dataSource));
-    usersRepository=new SqlUsersRepository(new DatabaseHelper(dataSource));
+    sessionsRepository = new PersistentSessionsRepository(new DatabaseHelper(dataSource));
+    usersRepository=new PersistentUsersRepository(new DatabaseHelper(dataSource));
   }
 
   @Test

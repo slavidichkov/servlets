@@ -7,13 +7,13 @@ import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class SqlUsersRepositoryFactory implements UsersRepositoryFactory {
+public class PersistentUsersRepositoryFactory implements UsersRepositoryFactory {
     public UsersRepository getUserRepository() {
         MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
         dataSource.setURL("jdbc:mysql://localhost:3306/bank");
         dataSource.setUser("root");
         dataSource.setPassword("clouway.com");
 
-        return new SqlUsersRepository(new DatabaseHelper(dataSource));
+        return new PersistentUsersRepository(new DatabaseHelper(dataSource));
     }
 }

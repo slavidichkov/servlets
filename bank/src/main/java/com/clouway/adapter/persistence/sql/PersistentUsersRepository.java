@@ -9,10 +9,10 @@ import java.sql.SQLException;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class SqlUsersRepository implements UsersRepository {
+public class PersistentUsersRepository implements UsersRepository {
   private final DatabaseHelper databaseHelper;
 
-  public SqlUsersRepository(DatabaseHelper databaseHelper) {
+  public PersistentUsersRepository(DatabaseHelper databaseHelper) {
     this.databaseHelper = databaseHelper;
   }
 

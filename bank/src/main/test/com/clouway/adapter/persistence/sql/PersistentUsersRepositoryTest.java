@@ -14,9 +14,9 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class SqlUsersRepositoryTest {
+public class PersistentUsersRepositoryTest {
   private MysqlConnectionPoolDataSource dataSource;
-  private SqlUsersRepository usersRepository;
+  private PersistentUsersRepository usersRepository;
 
   @Before
   public void setUp(){
@@ -25,7 +25,7 @@ public class SqlUsersRepositoryTest {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
-    usersRepository=new SqlUsersRepository(new DatabaseHelper(dataSource));
+    usersRepository=new PersistentUsersRepository(new DatabaseHelper(dataSource));
   }
 
   @Test

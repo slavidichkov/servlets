@@ -10,10 +10,10 @@ import java.sql.*;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class SqlAccountsRepository implements AccountsRepository{
+public class PersistentAccountsRepository implements AccountsRepository{
     private final DataSource dataSource;
 
-    public SqlAccountsRepository(DataSource dataSource) {
+    public PersistentAccountsRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

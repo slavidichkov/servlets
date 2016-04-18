@@ -1,8 +1,8 @@
 package com.clouway.http;
 
-import com.clouway.adapter.persistence.sql.SqlAccountsRepositoryFactory;
-import com.clouway.adapter.persistence.sql.SqlSessionsRepositoryFactory;
-import com.clouway.adapter.persistence.sql.SqlUsersRepositoryFactory;
+import com.clouway.adapter.persistence.sql.PersistentAccountsRepositoryFactory;
+import com.clouway.adapter.persistence.sql.PersistentSessionsRepositoryFactory;
+import com.clouway.adapter.persistence.sql.PersistentUsersRepositoryFactory;
 import com.clouway.core.*;
 import com.clouway.http.authorization.SecurityFilter;
 
@@ -17,9 +17,9 @@ import java.util.EnumSet;
  */
 public class HttpServletContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        DependencyManager.addDependencies(AccountsRepositoryFactory.class, new SqlAccountsRepositoryFactory());
-        DependencyManager.addDependencies(UsersRepositoryFactory.class, new SqlUsersRepositoryFactory());
-        DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SqlSessionsRepositoryFactory());
+        DependencyManager.addDependencies(AccountsRepositoryFactory.class, new PersistentAccountsRepositoryFactory());
+        DependencyManager.addDependencies(UsersRepositoryFactory.class, new PersistentUsersRepositoryFactory());
+        DependencyManager.addDependencies(SessionsRepositoryFactory.class, new PersistentSessionsRepositoryFactory());
         DependencyManager.addDependencies(Time.class,new TimeImpl());
         DependencyManager.addDependencies(UIDGenerator.class,new UIDGeneratorImpl());
         DependencyManager.addDependencies(UserValidator.class,new RegularExpressionUserValidator());
