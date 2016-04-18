@@ -18,14 +18,14 @@ import java.io.PrintWriter;
  */
 public class AccountManager extends HttpServlet {
     private final AccountsRepositoryFactory accountsRepositoryFactory =DependencyManager.getDependency(AccountsRepositoryFactory.class);
-    private final CurrentUser currentUser=DependencyManager.getDependency(CurrentUser.class);
+    private final CurrentUserProvider currentUserProvider =DependencyManager.getDependency(CurrentUserProvider.class);
     private final String amountErrorMessage = " amount is not correct";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        currentUser.set(new CookieSessionFinder(req.getCookies()));
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         Optional<User> optUser = currentUser.getUser();
         User user= optUser.get();
         Double userBalance = null;
@@ -45,7 +45,7 @@ public class AccountManager extends HttpServlet {
         String transactionType = req.getParameter("transactionType");
         String amount = req.getParameter("amount");
 
-        currentUser.set(new CookieSessionFinder(req.getCookies()));
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         Optional<User> optUser = currentUser.getUser();
         User user= optUser.get();
 

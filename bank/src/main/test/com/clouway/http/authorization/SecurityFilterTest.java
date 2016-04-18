@@ -53,7 +53,11 @@ public class SecurityFilterTest {
                 return sessionsRepository;
             }
         });
-        DependencyManager.addDependencies(CurrentUser.class, currentUser);
+        DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
+            public CurrentUser get(SessionFinder sessionFinder) {
+                return currentUser;
+            }
+        });
 
         securityFilter = new SecurityFilter();
         session = new FakeSession();

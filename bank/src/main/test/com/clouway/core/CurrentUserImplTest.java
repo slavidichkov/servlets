@@ -42,15 +42,13 @@ public class CurrentUserImplTest {
         return sessionsRepository;
       }
     });
-    currentUser = new CurrentUserImpl();
+    currentUser = new CurrentUserImpl(sessionFinder);
   }
 
   @Test
   public void getUserFromExistingSession() {
     final Session session = new Session("123456789", "nikola3423@abv.bg", 1234556778);
     final User user=new User("nikola","nikola123","nikola3423@abv.bg","nikola321","sliven",23);
-
-    currentUser.set(sessionFinder);
 
     context.checking(new Expectations() {{
       oneOf(sessionFinder).getId();
@@ -71,8 +69,6 @@ public class CurrentUserImplTest {
   public void notExistingSession() {
     final Session session = new Session("123456789", "nikola3423@abv.bg", 1234556778);
     final User user=new User("nikola","nikola123","nikola3423@abv.bg","nikola321","sliven",23);
-
-    currentUser.set(sessionFinder);
 
     context.checking(new Expectations() {{
       oneOf(sessionFinder).getId();

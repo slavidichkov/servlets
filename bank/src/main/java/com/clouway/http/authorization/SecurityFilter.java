@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class SecurityFilter implements Filter {
     private SessionsRepositoryFactory repositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
-    private CurrentUser currentUser=DependencyManager.getDependency(CurrentUser.class);
+    private CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
     private SessionsRepository sessionRepository = repositoryFactory.getSessionRepository();
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -27,7 +27,7 @@ public class SecurityFilter implements Filter {
 
 
         Cookie[] cookies = req.getCookies();
-        currentUser.set(new CookieSessionFinder(cookies));
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         String sid = currentUser.getSid();
 
         Optional<Session> optSession = sessionRepository.getSession(sid);

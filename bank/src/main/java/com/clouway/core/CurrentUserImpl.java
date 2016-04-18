@@ -12,6 +12,9 @@ public class CurrentUserImpl implements CurrentUser{
     private UsersRepository userRepository=userRepositoryFactory.getUserRepository();
     private SessionFinder sessionFinder;
 
+    public CurrentUserImpl(SessionFinder sessionFinder) {
+        this.sessionFinder = sessionFinder;
+    }
 
 
     public Optional<User> getUser() {
@@ -26,9 +29,5 @@ public class CurrentUserImpl implements CurrentUser{
 
     public String getSid() {
         return sessionFinder.getId();
-    }
-
-    public void set(SessionFinder sessionFinder) {
-        this.sessionFinder = sessionFinder;
     }
 }

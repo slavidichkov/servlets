@@ -44,7 +44,11 @@ public class AccountManagerTest {
                 return accountsRepository;
             }
         });
-        DependencyManager.addDependencies(CurrentUser.class, currentUser);
+        DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
+            public CurrentUser get(SessionFinder sessionFinder) {
+                return currentUser;
+            }
+        });
         DependencyManager.addDependencies(UserValidator.class,new RegularExpressionUserValidator());
 
         accountManager = new AccountManager();

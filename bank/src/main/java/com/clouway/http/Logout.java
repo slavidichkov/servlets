@@ -16,13 +16,13 @@ import java.io.IOException;
  */
 public class Logout extends HttpServlet {
     private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
-    private final CurrentUser currentUser = DependencyManager.getDependency(CurrentUser.class);
+    private final CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
 
-        currentUser.set(new CookieSessionFinder(req.getCookies()));
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         Optional<User> optUser = currentUser.getUser();
 
         if (optUser.isPresent()) {

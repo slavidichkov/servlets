@@ -23,7 +23,7 @@ public class HttpServletContextListener implements ServletContextListener {
         DependencyManager.addDependencies(Time.class,new TimeImpl());
         DependencyManager.addDependencies(UIDGenerator.class,new UIDGeneratorImpl());
         DependencyManager.addDependencies(UserValidator.class,new RegularExpressionUserValidator());
-        DependencyManager.addDependencies(CurrentUser.class,new CurrentUserImpl());
+        DependencyManager.addDependencies(CurrentUserProvider.class,new CurrentUserProviderImpl());
 
         ServletContext servletContext = servletContextEvent.getServletContext();
 

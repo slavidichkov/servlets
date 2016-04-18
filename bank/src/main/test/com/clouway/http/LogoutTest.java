@@ -44,7 +44,11 @@ public class LogoutTest {
                 return sessionsRepository;
             }
         });
-        DependencyManager.addDependencies(CurrentUser.class, currentUser);
+        DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
+            public CurrentUser get(SessionFinder sessionFinder) {
+                return currentUser;
+            }
+        });
         logout = new Logout();
         session = new FakeSession();
         request = new FakeRequest(session);
