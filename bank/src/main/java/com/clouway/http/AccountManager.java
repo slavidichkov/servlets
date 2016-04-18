@@ -18,10 +18,7 @@ import java.io.PrintWriter;
 public class AccountManager extends HttpServlet {
     private final AccountsRepositoryFactory accountsRepositoryFactory =DependencyManager.getDependency(AccountsRepositoryFactory.class);
     private final CurrentUser currentUser=DependencyManager.getDependency(CurrentUser.class);
-
-    public AccountManager() {
-
-    }
+    private final String amountErrorMessage = " amount is not correct";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -46,7 +43,7 @@ public class AccountManager extends HttpServlet {
         Optional<User> optUser = currentUser.getUser();
         User user= optUser.get();
 
-        String errorMessage=" amount is not correct";
+        String errorMessage=amountErrorMessage;
         if (isValidAmount(amount) && "withdraw".equals(transactionType)) {
             errorMessage="";
             try {

@@ -53,14 +53,9 @@ public class Login extends HttpServlet {
         }
 
         Optional<User> optUser = userRepository.getUser(email);
-        if (!optUser.isPresent()) {
-            printPage(resp.getWriter(), new HashMap<String, String>() {{
-                put("wrongEmailOrPassword", "Wrong email or password");
-            }});
-            return;
-        }
-        User user=optUser.get();
-        if (password.equals(user.password)) {
+
+        if (optUser.isPresent() && password.equals(optUser.get().password)) {
+            User user=optUser.get();
             String sid = uidGenerator.randomID();
             SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
             sessionRepository.register(new Session(sid, user.email, time.now().getTime() + Session.sessionExpiresTime));
