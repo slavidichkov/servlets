@@ -22,9 +22,8 @@ public class CookieSessionFinderTest {
   }
 
   @Test
-  public void getId() {
+  public void getExistingId() {
     String sid=cookieSessionFinder.getId();
       assertThat(sid,is(equalTo("this is session id")));
   }
-
 }

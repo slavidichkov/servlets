@@ -67,7 +67,7 @@ public class SecurityFilterTest {
 
 
     @Test
-    public void loggedUser() throws IOException, ServletException {
+    public void doNotFilterLoggedUser() throws IOException, ServletException {
         final Cookie cookie=new Cookie("sid","1234567890");
         request.addCookies(cookie);
 
@@ -82,7 +82,7 @@ public class SecurityFilterTest {
     }
 
     @Test
-    public void notLoggedUser() throws IOException, ServletException {
+    public void filterNotLoggedUser() throws IOException, ServletException {
         currentUser.setUser(null);
 
         context.checking(new Expectations() {{

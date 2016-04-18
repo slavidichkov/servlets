@@ -59,7 +59,7 @@ public class RegisterTest {
     }
 
     @Test
-    public void registeredNotExistedUser() throws IOException, ServletException {
+    public void registerNotExistedUser() throws IOException, ServletException {
         final User user=new User("ivan","ivan1313","ivan@abv.bg","ivan123","sliven",23);
         final ValidationUser validationUser = newValidationUser()
                 .name(user.name,"wrongName")
@@ -96,7 +96,7 @@ public class RegisterTest {
     }
 
     @Test
-    public void registeredExistedUser() throws IOException, ServletException {
+    public void registeringAlreadyExistingUser() throws IOException, ServletException {
         final User user=new User("ivan","ivan1313","ivan@abv.bg","ivan123","sliven",23);
         final ValidationUser validationUser = newValidationUser()
                 .name(user.name,"wrongName")
