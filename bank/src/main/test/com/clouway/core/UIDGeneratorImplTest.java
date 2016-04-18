@@ -17,7 +17,7 @@ public class UIDGeneratorImplTest {
   }
 
   @Test
-  public void testReturnedValues() {
+  public void checkThatRandomValuesAreNotEqual() {
     String first=uidGenerator.randomID();
     String second=uidGenerator.randomID();
 
