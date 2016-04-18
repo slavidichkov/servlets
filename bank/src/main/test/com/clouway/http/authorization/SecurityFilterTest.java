@@ -72,10 +72,9 @@ public class SecurityFilterTest {
         request.addCookies(cookie);
 
         currentUser.setSid("1234567890");
+        currentUser.setUser(new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23));
 
         context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession("1234567890");
-            will(returnValue(Optional.of(new Session("1234567890","ivan@abv.bg", 232412343))));
             oneOf(filterChain).doFilter(request, response);
         }});
 
@@ -84,12 +83,9 @@ public class SecurityFilterTest {
 
     @Test
     public void notLoggedUser() throws IOException, ServletException {
-
-        currentUser.setSid(null);
+        currentUser.setUser(null);
 
         context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession(null);
-            will(returnValue(Optional.absent()));
             never(filterChain).doFilter(request, response);
         }});
 
