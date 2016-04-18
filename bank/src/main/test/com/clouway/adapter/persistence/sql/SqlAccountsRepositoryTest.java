@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
  */
 public class SqlAccountsRepositoryTest {
   private MysqlConnectionPoolDataSource dataSource;
+  private SqlAccountsRepository accountsRepository;
 
   @Before
   public void setUp() {
@@ -24,11 +25,11 @@ public class SqlAccountsRepositoryTest {
     dataSource.setUser("root");
     dataSource.setPassword("clouway.com");
     new DatabaseCleaner(dataSource, "users", "sessions", "accounts").cleanUp();
+    accountsRepository = new SqlAccountsRepository(dataSource);
   }
 
   @Test
   public void registerNewAccount() {
-    SqlAccountsRepository accountsRepository = new SqlAccountsRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
     accountsRepository.register(user);
     Double balance = accountsRepository.getBalance(user);
@@ -37,7 +38,6 @@ public class SqlAccountsRepositoryTest {
 
   @Test
   public void depositToAccount() {
-    SqlAccountsRepository accountsRepository = new SqlAccountsRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
     accountsRepository.register(user);
 
@@ -49,7 +49,6 @@ public class SqlAccountsRepositoryTest {
 
   @Test (expected = InsufficientAvailability.class)
   public void withdrawFromZeroAmount() throws InsufficientAvailability {
-    SqlAccountsRepository accountsRepository = new SqlAccountsRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
     accountsRepository.register(user);
     accountsRepository.withdraw(user,new Double(20));
@@ -57,7 +56,6 @@ public class SqlAccountsRepositoryTest {
 
   @Test
   public void withdrawFromNotZeroAmount() throws InsufficientAvailability {
-    SqlAccountsRepository accountsRepository = new SqlAccountsRepository(dataSource);
     User user = new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23);
     accountsRepository.register(user);
 
