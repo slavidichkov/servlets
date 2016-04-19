@@ -4,6 +4,11 @@ package com.clouway.http;
 import com.clouway.core.LoggedUsers;
 import com.clouway.core.*;
 import com.google.common.base.Optional;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.Version;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -13,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.clouway.core.ValidationUser.newValidationUser;
@@ -71,35 +77,27 @@ public class Login extends HttpServlet {
     }
 
     private void printPage(PrintWriter writer, Map<String, String> errors) {
-        writer.println(getHtmlContent(errors));
-        writer.flush();
-    }
+        Configuration cfg = new Configuration();
+        cfg.setClassForTemplateLoading(Login.class, "");
+        cfg.setIncompatibleImprovements(new Version(2, 3, 20));
+        cfg.setDefaultEncoding("UTF-8");
+        cfg.setLocale(Locale.US);
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
-    private String getHtmlContent(Map<String, String> errors) {
-        Map<String, String> errorFields = new HashMap<String, String>() {{
-            put("wrongEmail", "");
-            put("wrongPassword", "");
-            put("wrongEmailOrPassword", "");
-        }};
-        errorFields.putAll(errors);
-        return "<!DOCTYPE html>" +
-                "<html lang=\"en\">" +
-                "<head>" +
-                "    <meta charset=\"UTF-8\">" +
-                "    <title>Login</title>" +
-                "</head>" +
-                "<body>" +
-                "<form action=\"login\" name=\"loginForm\" method=\"post\">" +
-                "<label >Email </label>" +
-                "<span>" + errorFields.get("wrongEmail") + "</span> <br>" +
-                "<input type=\"text\" name=\"email\" placeholder=\"Email\"><br>" +
-                "<label  >Password </label>" +
-                "<span>" + errorFields.get("wrongPassword") + "</span> <br>" +
-                "<input type=\"password\" name=\"password\" placeholder=\"Password\"><br>" +
-                "<input type=\"submit\" value=\"Submit\">" +
-                "<p>" + errorFields.get("wrongEmailOrPassword") + "</p>" +
-                "</form>" +
-                "</body>" +
-                "</html>";
+        Map<String, Object> input = new HashMap<String, Object>();
+        input. put("wrongEmail", "");
+        input.put("wrongPassword", "");
+        input.put("wrongEmailOrPassword", "");
+        input.putAll(errors);
+
+        Template template=null;
+        try {
+            template = cfg.getTemplate("login.ftl");
+            template.process(input, writer);
+        } catch (TemplateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
