@@ -2,18 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+	<link rel="stylesheet" href="bank.css">
     <title>AccountManager</title>
   </head>
   <body>
     <h1>Users in the system : ${loggedUsers}</h1>
-    <br />
+    </br>
     <a href="logout">LOGOUT</a>
     <h1>Balance is : ${balance}</h1>
-    <br />
+    </br>
     <form action="balance" name="balanceForm" method="post">
     <input type="text" name="amount" placeholder="amount" /> 
-    <span>${errorMessage}</span>
-    <br />
+    <span class="incorrect">${errorMessage}</span>
+    </br>
     <input type="submit" name="transactionType" value="withdraw" /> 
     <input type="submit" name="transactionType" value="deposit" /></form>
   </body>

@@ -2,21 +2,22 @@
 <html lang="en">
   <head>
 	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="bank.css">
     <title>Login</title>
   </head>
   <body>
   <form action="login" name="loginForm" method="post">
   <label>Email</label>
-  <span>${wrongEmail}</span>
+  <span class="incorrect">${wrongEmail}</span>
   </br>
   <input type="text" name="email" placeholder="Email" />
   </br>
   <label>Password</label> 
-  <span>${wrongPassword}</span>
+  <span class="incorrect">${wrongPassword}</span>
   </br>
   <input type="password" name="password" placeholder="Password" />
   </br>
   <input type="submit" value="Submit" />
   </br>
-  <span>${wrongEmailOrPassword}</span></form></body>
+  <span class="incorrect">${wrongEmailOrPassword}</span></form></body>
 </html>
