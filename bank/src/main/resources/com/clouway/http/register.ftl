@@ -2,46 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-	<link rel="stylesheet" href="bank.css">
+    <link rel="stylesheet" href="bank.css"/>
     <title>Registration</title>
   </head>
   <body>
     <form action="registration" name="registrationForm" method="post">
     <label>Name</label> 
     <span class="incorrect">${wrongName}</span>
-    </br>
+    <br />
     <input type="text" name="name" placeholder="Name" />
-    </br>
+    <br />
     <label>Nick Name</label> 
     <span class="incorrect">${wrongNickName}</span>
-	</br>
+    <br />
     <input type="text" name="nickName" placeholder="Nick Name" />
-    </br>
+    <br />
     <label>Age</label> 
     <span class="incorrect">${wrongAge}</span>
-    </br>
+    <br />
     <input type="text" name="age" placeholder="Age" />
-    </br>
+    <br />
     <label>City</label> 
     <span class="incorrect">${wrongCity}</span>
-    </br>
+    <br />
     <input type="text" name="city" placeholder="City" />
     <br />
     <label>Email</label> 
     <span class="incorrect">${wrongEmail}</span>
-    </br>
+    <br />
     <input type="text" name="email" placeholder="Email" />
-    </br>
+    <br />
     <label>Password</label> 
     <span class="incorrect">${wrongPassword}</span>
-    </br>
+    <br />
     <input type="password" name="password" placeholder="Password" />
-    </br>
+    <br />
     <label>Confirm Password</label> 
     <span class="incorrect">${wrongConfirmPassword}</span>
-    </br>
+    <br />
     <input type="password" name="confirmPassword" placeholder="Confirm Password" />
-    </br>
+    <br />
     <input type="submit" value="Submit" /></form>
   </body>
 </html>
