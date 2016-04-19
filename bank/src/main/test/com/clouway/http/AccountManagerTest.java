@@ -103,7 +103,7 @@ public class AccountManagerTest {
         accountManager.doPost(request, response);
 
         String expected = out.toString();
-        assertThat(expected.contains("Balance is : 0.0"), is(true));
+        assertThat(expected.contains("Balance is : 0"), is(true));
     }
 
     @Test
