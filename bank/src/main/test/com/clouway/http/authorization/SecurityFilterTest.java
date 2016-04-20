@@ -94,6 +94,6 @@ public class SecurityFilterTest {
 
         securityFilter.doFilter(request, response, filterChain);
 
-        assertThat(response.getRedirectUrl(), is(equalTo("/login")));
+        assertThat(response.getRedirectUrl(), is(equalTo("/")));
     }
 }

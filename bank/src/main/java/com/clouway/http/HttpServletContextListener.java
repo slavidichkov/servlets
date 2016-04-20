@@ -32,11 +32,13 @@ public class HttpServletContextListener implements ServletContextListener {
 
     ServletContext servletContext = servletContextEvent.getServletContext();
 
-    servletContext.addServlet("login", new Login()).addMapping("/login");
+    servletContext.addFilter("errorFilter",new ErrorFilter()).addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
     servletContext.addFilter("securityFilter", new SecurityFilter(new HashSet<String>() {{
       add("login");
       add("registration");
     }})).addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
+    servletContext.addServlet("errorpage", new ErrorPage()).addMapping("/errorpage");
+    servletContext.addServlet("login", new Login()).addMapping("/login");
     servletContext.addServlet("logout", new Logout()).addMapping("/logout");
     servletContext.addServlet("registration", new Register()).addMapping("/registration");
     servletContext.addServlet("balance", new AccountManager()).addMapping("/balance");

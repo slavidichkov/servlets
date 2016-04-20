@@ -2,17 +2,15 @@ package com.clouway.adapter.persistence.sql;
 
 import com.clouway.core.SessionsRepository;
 import com.clouway.core.SessionsRepositoryFactory;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+
+import javax.sql.DataSource;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class PersistentSessionsRepositoryFactory implements SessionsRepositoryFactory {
     public SessionsRepository getSessionRepository() {
-        MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
-        dataSource.setURL("jdbc:mysql://localhost:3306/bank");
-        dataSource.setUser("root");
-        dataSource.setPassword("clouway.com");
+        DataSource dataSource = new AppDataSource().getConfiguredDataSource();
         return new PersistentSessionsRepository(new DatabaseHelper(dataSource));
     }
 }

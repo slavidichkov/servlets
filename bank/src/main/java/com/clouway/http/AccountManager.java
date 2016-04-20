@@ -27,18 +27,13 @@ public class AccountManager extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
+            throws ServletException, IOException, DatabaseException {
         CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         Optional<User> optUser = currentUser.getUser();
         User user= optUser.get();
         Double userBalance = null;
-        try{
-            userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(user);
-        }catch (DatabaseException dex){
-            resp.sendRedirect("/errorPage");
-        }
-         printPage(resp.getWriter(), userBalance,"");
+        userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(user);
+        printPage(resp.getWriter(), userBalance,"");
     }
 
     @Override
@@ -60,17 +55,11 @@ public class AccountManager extends HttpServlet {
                 accountsRepository.withdraw(user, Double.valueOf(amount));
             } catch (InsufficientAvailability ex) {
                 errorMessage = "Can not withdraw the given amount";
-            }catch (DatabaseException dex){
-                errorMessage="";
             }
         }
         if (isValidAmount(amount) && "deposit".equals(transactionType)) {
             errorMessage="";
-            try{
-                accountsRepository.deposit(user, Double.valueOf(amount));
-            }catch (DatabaseException dex){
-                errorMessage="";
-            }
+            accountsRepository.deposit(user, Double.valueOf(amount));
 
         }
         printPage(resp.getWriter(),accountsRepository.getBalance(user), errorMessage);

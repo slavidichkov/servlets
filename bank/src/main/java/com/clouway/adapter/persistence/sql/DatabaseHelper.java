@@ -20,26 +20,31 @@ public class DatabaseHelper {
     this.dataSource = dataSource;
   }
 
-  public long executeUpdate(String query, Object... params) throws SQLException {
+  public long executeUpdate(String query, Object... params) {
     long autoIncrementKey = -1;
-    Connection connection = dataSource.getConnection();
-    PreparedStatement preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-    fillPreparedStatement(preparedStatement, params);
-    preparedStatement.executeUpdate();
+    try{
+      Connection connection = dataSource.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+      fillPreparedStatement(preparedStatement, params);
+      preparedStatement.executeUpdate();
 
-    ResultSet resultSet = preparedStatement.getGeneratedKeys();
+      ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
-    if (resultSet.next()) {
-      autoIncrementKey = resultSet.getLong(1);
+      if (resultSet.next()) {
+        autoIncrementKey = resultSet.getLong(1);
+      }
+
+      preparedStatement.close();
+      connection.close();
+    }catch (SQLException ex){
+      throw new DatabaseException();
     }
 
-    preparedStatement.close();
-    connection.close();
 
     return autoIncrementKey;
   }
 
-  public <T> Optional<T> fetchOne(String query, RowFetcher<T> rowFetcher, Object... params) throws SQLException {
+  public <T> Optional<T> fetchOne(String query, RowFetcher<T> rowFetcher, Object... params){
     List<T> result = fetchList(query, rowFetcher, params);
 
     if (!result.isEmpty()) {
@@ -48,18 +53,23 @@ public class DatabaseHelper {
     return Optional.absent();
   }
 
-  public <T> List<T> fetchList(String query, RowFetcher<T> rowFetcher, Object... params) throws SQLException {
+  public <T> List<T> fetchList(String query, RowFetcher<T> rowFetcher, Object... params) {
     List<T> list = new ArrayList<T>();
-    Connection connection = dataSource.getConnection();
-    PreparedStatement preparedStatement = connection.prepareStatement(query);
-    fillPreparedStatement(preparedStatement, params);
-    ResultSet resultSet = preparedStatement.executeQuery();
-    while (resultSet.next()) {
-      T object = rowFetcher.build(resultSet);
-      list.add(object);
+    try {
+      Connection connection = dataSource.getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement(query);
+      fillPreparedStatement(preparedStatement, params);
+      ResultSet resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        T object = rowFetcher.build(resultSet);
+        list.add(object);
+      }
+      preparedStatement.close();
+      connection.close();
+    }catch (SQLException ex){
+      throw new DatabaseException();
     }
-    preparedStatement.close();
-    connection.close();
+
 
     return list;
   }
@@ -70,7 +80,7 @@ public class DatabaseHelper {
       try {
         preparedStatement.setObject(i + 1, params[i]);
       } catch (SQLException e) {
-        e.printStackTrace();
+        throw new DatabaseException();
       }
     }
   }

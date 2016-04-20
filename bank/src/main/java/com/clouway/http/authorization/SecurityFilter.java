@@ -33,18 +33,16 @@ public class SecurityFilter implements Filter {
             return;
         }
 
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
         String endpoint=uri.split("/")[1];
-        if (allowedPages.contains(endpoint)){
+        if (!currentUser.getUser().isPresent() && allowedPages.contains(endpoint)){
             chain.doFilter(request, response);
             return;
         }
-
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
-
-        if (currentUser.getUser().isPresent()) {
+        if (currentUser.getUser().isPresent() && !allowedPages.contains(endpoint)) {
             chain.doFilter(request, response);
         } else {
-            resp.sendRedirect("/login");
+            resp.sendRedirect("/");
         }
     }
 
