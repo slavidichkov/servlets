@@ -19,6 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -59,7 +60,7 @@ public class SecurityFilterTest {
             }
         });
 
-        securityFilter = new SecurityFilter();
+        securityFilter = new SecurityFilter(new HashSet<String>());
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();
@@ -70,6 +71,7 @@ public class SecurityFilterTest {
     public void doNotFilterLoggedUser() throws IOException, ServletException {
         final Cookie cookie=new Cookie("sid","1234567890");
         request.addCookies(cookie);
+        request.setRequestURI("/balance");
 
         currentUser.setSid("1234567890");
         currentUser.setUser(new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23));
@@ -84,6 +86,7 @@ public class SecurityFilterTest {
     @Test
     public void filterNotLoggedUser() throws IOException, ServletException {
         currentUser.setUser(null);
+        request.setRequestURI("/balance");
 
         context.checking(new Expectations() {{
             never(filterChain).doFilter(request, response);

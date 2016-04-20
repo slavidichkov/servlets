@@ -52,6 +52,9 @@ public class LoginTest {
     SessionsRepository sessionsRepository;
 
     @Mock
+    LoggedUsersRepository loggedUsersRepository;
+
+    @Mock
     UIDGenerator uidGenerator;
 
     FakeTime time=new FakeTime();
@@ -66,6 +69,11 @@ public class LoginTest {
         DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
             public SessionsRepository getSessionRepository() {
                 return sessionsRepository;
+            }
+        });
+        DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
+            public LoggedUsersRepository getLoggedUsersRepository() {
+                return loggedUsersRepository;
             }
         });
         DependencyManager.addDependencies(UIDGenerator.class, uidGenerator);
@@ -90,6 +98,7 @@ public class LoginTest {
             will(returnValue(Optional.of(user)));
             oneOf(uidGenerator).randomID();
             will(returnValue("1234567890"));
+            oneOf(loggedUsersRepository).login(user);
             oneOf(sessionsRepository).register(new Session("1234567890", "ivan@abv.bg", time.now().getTime()+Session.sessionExpiresTime));
         }});
 
@@ -99,7 +108,6 @@ public class LoginTest {
         login.doPost(request, response);
 
         assertThat((User) request.getSession().getAttribute("currentUser"), is(user));
-        assertThat(LoggedUsers.getCount(),is(equalTo(1)));
         assertThat(response.getRedirectUrl(), is(equalTo("/balance")));
     }
 

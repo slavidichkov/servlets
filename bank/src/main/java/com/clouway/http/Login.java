@@ -1,7 +1,6 @@
 package com.clouway.http;
 
 
-import com.clouway.core.LoggedUsers;
 import com.clouway.core.*;
 import com.google.common.base.Optional;
 import freemarker.template.Configuration;
@@ -29,6 +28,7 @@ import static com.clouway.core.ValidationUser.newValidationUser;
 public class Login extends HttpServlet {
     private final UsersRepositoryFactory userRepositoryFactory = DependencyManager.getDependency(UsersRepositoryFactory.class);
     private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
+    private final LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
     private final UIDGenerator uidGenerator = DependencyManager.getDependency(UIDGenerator.class);
     private final Time time = DependencyManager.getDependency(Time.class);
     private UserValidator validator = DependencyManager.getDependency(UserValidator.class);
@@ -44,6 +44,8 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
+
         String email = req.getParameter("email");
         String password = req.getParameter("password");
 
@@ -67,7 +69,7 @@ public class Login extends HttpServlet {
             sessionRepository.register(new Session(sid, user.email, time.now().getTime() + Session.sessionExpiresTime));
             Cookie cookie = new Cookie("sid", sid);
             resp.addCookie(cookie);
-            LoggedUsers.login(user);
+            loggedUsersRepository.login(user);
             resp.sendRedirect("/balance");
         } else {
             printPage(resp.getWriter(), new HashMap<String, String>() {{

@@ -3,7 +3,8 @@ package com.clouway.http;
 import com.clouway.core.CurrentUser;
 import com.clouway.core.CurrentUserProvider;
 import com.clouway.core.DependencyManager;
-import com.clouway.core.LoggedUsers;
+import com.clouway.core.LoggedUsersRepository;
+import com.clouway.core.LoggedUsersRepositoryFactory;
 import com.clouway.http.authorization.CookieSessionFinder;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 public class Home extends HttpServlet{
   private CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
+  private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,6 +36,8 @@ public class Home extends HttpServlet{
   }
 
   private void printPage(PrintWriter writer, CurrentUser currentUser) {
+    LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
+
     Configuration cfg = new Configuration();
     cfg.setClassForTemplateLoading(Home.class, "");
     cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -42,7 +46,7 @@ public class Home extends HttpServlet{
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
     Map<String, Object> input = new HashMap<String, Object>();
-    input.put("loggedUsers", LoggedUsers.getCount());
+    input.put("loggedUsers", loggedUsersRepository.getCount());
 
     if (!currentUser.getUser().isPresent()) {
       input.put("links","<a href=\"login\">login</a> </br> <a href=\"registration\">registration</a>");

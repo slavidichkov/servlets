@@ -16,6 +16,7 @@ public class FakeRequest implements HttpServletRequest {
     private HttpSession session;
     private Map<String, String> parameters = new HashMap<String, String>();
     private Map<String, Object> attribute = new HashMap<String, Object>();
+    private String uri;
     private List<Cookie> cookies=new ArrayList<Cookie>(){{
         add(new Cookie("dada","dadadafsafawefg"));
     }};
@@ -25,6 +26,14 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     public FakeRequest() {
+    }
+
+    public String getRequestURI() {
+        return uri;
+    }
+
+    public void setRequestURI(String uri){
+        this.uri = uri;
     }
 
     public void addCookies(Cookie cookie) {
@@ -126,10 +135,6 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     public String getRequestedSessionId() {
-        return null;
-    }
-
-    public String getRequestURI() {
         return null;
     }
 

@@ -37,6 +37,9 @@ public class LogoutTest {
     @Mock
     SessionsRepository sessionsRepository;
 
+    @Mock
+    LoggedUsersRepository loggedUsersRepository;
+
     @Before
     public void setUp() throws Exception {
         DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
@@ -47,6 +50,11 @@ public class LogoutTest {
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
             public CurrentUser get(SessionFinder sessionFinder) {
                 return currentUser;
+            }
+        });
+        DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
+            public LoggedUsersRepository getLoggedUsersRepository() {
+                return loggedUsersRepository;
             }
         });
         logout = new Logout();
@@ -68,10 +76,10 @@ public class LogoutTest {
 
         context.checking(new Expectations() {{
             oneOf(sessionsRepository).remove(sid);
+            oneOf(loggedUsersRepository).logout(user);
         }});
 
         logout.doPost(request, response);
-        assertThat(LoggedUsers.getCount(),is(equalTo(0)));
         assertThat(response.getRedirectUrl(), is(equalTo("/")));
     }
 }

@@ -1,7 +1,6 @@
 package com.clouway.http;
 
 import com.clouway.adapter.persistence.sql.DatabaseException;
-import com.clouway.core.LoggedUsers;
 import com.clouway.core.*;
 import com.clouway.http.authorization.CookieSessionFinder;
 import com.google.common.base.Optional;
@@ -23,6 +22,7 @@ import java.util.Map;
 public class AccountManager extends HttpServlet {
     private final AccountsRepositoryFactory accountsRepositoryFactory =DependencyManager.getDependency(AccountsRepositoryFactory.class);
     private final CurrentUserProvider currentUserProvider =DependencyManager.getDependency(CurrentUserProvider.class);
+    private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
     private final String amountErrorMessage = " amount is not correct";
 
     @Override
@@ -59,9 +59,9 @@ public class AccountManager extends HttpServlet {
             try {
                 accountsRepository.withdraw(user, Double.valueOf(amount));
             } catch (InsufficientAvailability ex) {
-                errorMessage = ex.getMessage();
+                errorMessage = "Can not withdraw the given amount";
             }catch (DatabaseException dex){
-                resp.sendRedirect("/errorPage");
+                errorMessage="";
             }
         }
         if (isValidAmount(amount) && "deposit".equals(transactionType)) {
@@ -69,7 +69,7 @@ public class AccountManager extends HttpServlet {
             try{
                 accountsRepository.deposit(user, Double.valueOf(amount));
             }catch (DatabaseException dex){
-                resp.sendRedirect("/errorPage");
+                errorMessage="";
             }
 
         }
@@ -81,6 +81,8 @@ public class AccountManager extends HttpServlet {
     }
 
     private void printPage(PrintWriter writer, Double balance,String errorMessage) {
+        LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
+
         Configuration cfg = new Configuration();
         cfg.setClassForTemplateLoading(AccountManager.class, "");
         cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -89,7 +91,7 @@ public class AccountManager extends HttpServlet {
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
         Map<String, Object> input = new HashMap<String, Object>();
-        input.put("loggedUsers", LoggedUsers.getCount());
+        input.put("loggedUsers", loggedUsersRepository.getCount());
         input.put("balance", balance);
         input.put("errorMessage", errorMessage);
 

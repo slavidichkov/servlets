@@ -37,6 +37,9 @@ public class AccountManagerTest {
     @Mock
     AccountsRepository accountsRepository;
 
+    @Mock
+    LoggedUsersRepository loggedUsersRepository;
+
     @Before
     public void setUp() throws Exception {
         DependencyManager.addDependencies(AccountsRepositoryFactory.class, new AccountsRepositoryFactory() {
@@ -47,6 +50,11 @@ public class AccountManagerTest {
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
             public CurrentUser get(SessionFinder sessionFinder) {
                 return currentUser;
+            }
+        });
+        DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
+            public LoggedUsersRepository getLoggedUsersRepository() {
+                return loggedUsersRepository;
             }
         });
         DependencyManager.addDependencies(UserValidator.class,new RegularExpressionUserValidator());
@@ -66,6 +74,8 @@ public class AccountManagerTest {
         currentUser.setUser(user);
 
         context.checking(new Expectations() {{
+            oneOf(loggedUsersRepository).getCount();
+            will(returnValue(1));
             oneOf(accountsRepository).getBalance(user);
             will(returnValue(22.23));
         }});
@@ -91,6 +101,8 @@ public class AccountManagerTest {
         currentUser.setUser(user);
 
         context.checking(new Expectations() {{
+            oneOf(loggedUsersRepository).getCount();
+            will(returnValue(1));
             oneOf(accountsRepository).withdraw(user,23.12);
             will(returnValue(0.0));
             oneOf(accountsRepository).getBalance(user);
@@ -118,6 +130,8 @@ public class AccountManagerTest {
         request.setParameter("amount", "23.12");
 
         context.checking(new Expectations() {{
+            oneOf(loggedUsersRepository).getCount();
+            will(returnValue(1));
             oneOf(accountsRepository).deposit(user,23.12);
             will(returnValue(23.12));
             oneOf(accountsRepository).getBalance(user);
