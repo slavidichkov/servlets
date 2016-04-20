@@ -6,6 +6,7 @@ import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
 
 import com.clouway.http.fakeclasses.FakeRequest;
+import com.clouway.http.fakeclasses.FakeUIDGenerator;
 import com.google.common.base.Optional;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
@@ -31,6 +32,9 @@ public class LoginTest {
     private FakeSession session;
     private FakeRequest request;
     private FakeResponse response;
+    private FakeTime time=new FakeTime();
+    private FakeUIDGenerator uidGenerator=new FakeUIDGenerator();
+
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -53,11 +57,6 @@ public class LoginTest {
 
     @Mock
     LoggedUsersRepository loggedUsersRepository;
-
-    @Mock
-    UIDGenerator uidGenerator;
-
-    FakeTime time=new FakeTime();
 
     @Before
     public void setUp() throws Exception {
@@ -93,11 +92,11 @@ public class LoginTest {
         request.setParameter("email", user.email);
         request.setParameter("password", user.password);
 
+        uidGenerator.setRandomID("1234567890");
+
         context.checking(new Expectations() {{
             oneOf(userRepository).getUser("ivan@abv.bg");
             will(returnValue(Optional.of(user)));
-            oneOf(uidGenerator).randomID();
-            will(returnValue("1234567890"));
             oneOf(loggedUsersRepository).login(user);
             oneOf(sessionsRepository).register(new Session("1234567890", "ivan@abv.bg", time.now().getTime()+Session.sessionExpiresTime));
         }});
