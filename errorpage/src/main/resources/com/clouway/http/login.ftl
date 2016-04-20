@@ -7,12 +7,12 @@
 <body>
 	<form action="login" name="loginForm" method="post">
 		<label >Email </label>
-		<span>${errorMesageWrongEmail}</span> <br>
+		<span>${wrongEmail}</span> <br>
 		<input type="text" name="email" placeholder="Email"><br>
 		<label  >Password </label>
-		<span>${errorMesageWrongPassword}</span> <br>
+		<span>${wrongPassword}</span> <br>
 		<input type="password" name="password" placeholder="Passwor"><br>
-		<p>${errorMesageExistingUser}</p>
+		<p>${wrongEmailOrPassword}</p>
 	</form>
 </body>
 </html>
