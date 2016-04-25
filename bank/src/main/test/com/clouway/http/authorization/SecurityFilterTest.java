@@ -34,6 +34,8 @@ public class SecurityFilterTest {
     private FakeResponse response;
     private FakeSession session;
     private FakeCurrentUser currentUser;
+    final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
+    final String sid = "1234567890";
 
 
     @Rule
@@ -55,8 +57,8 @@ public class SecurityFilterTest {
             }
         });
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public CurrentUser get(SessionFinder sessionFinder) {
-                return currentUser;
+            public Optional<CurrentUser> get(SessionFinder sessionFinder) {
+                return Optional.of(new CurrentUser(user,sid));
             }
         });
 
@@ -72,9 +74,6 @@ public class SecurityFilterTest {
         final Cookie cookie=new Cookie("sid","1234567890");
         request.addCookies(cookie);
         request.setRequestURI("/balance");
-
-        currentUser.setSid("1234567890");
-        currentUser.setUser(new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23));
 
         context.checking(new Expectations() {{
             oneOf(filterChain).doFilter(request, response);

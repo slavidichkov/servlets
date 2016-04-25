@@ -28,11 +28,8 @@ public class AccountManager extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, DatabaseException {
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
-        Optional<User> optUser = currentUser.getUser();
-        User user= optUser.get();
-        Double userBalance = null;
-        userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(user);
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies())).get();
+        Double userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(currentUser.getUser());
         printPage(resp.getWriter(), userBalance,"");
     }
 
@@ -44,9 +41,8 @@ public class AccountManager extends HttpServlet {
         String transactionType = req.getParameter("transactionType");
         String amount = req.getParameter("amount");
 
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
-        Optional<User> optUser = currentUser.getUser();
-        User user= optUser.get();
+        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies())).get();
+        User user = currentUser.getUser();
 
         String errorMessage=amountErrorMessage;
         if (isValidAmount(amount) && "withdraw".equals(transactionType)) {

@@ -1,11 +1,8 @@
 package com.clouway.http;
 
-import com.clouway.core.CurrentUser;
-import com.clouway.core.CurrentUserProvider;
-import com.clouway.core.DependencyManager;
-import com.clouway.core.LoggedUsersRepository;
-import com.clouway.core.LoggedUsersRepositoryFactory;
+import com.clouway.core.*;
 import com.clouway.http.authorization.CookieSessionFinder;
+import com.google.common.base.Optional;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -31,11 +28,11 @@ public class Home extends HttpServlet{
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
+    Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
     printPage(resp.getWriter(),currentUser);
   }
 
-  private void printPage(PrintWriter writer, CurrentUser currentUser) {
+  private void printPage(PrintWriter writer, Optional<CurrentUser> currentUser) {
     LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
 
     Configuration cfg = new Configuration();
@@ -48,7 +45,7 @@ public class Home extends HttpServlet{
     Map<String, Object> input = new HashMap<String, Object>();
     input.put("loggedUsers", loggedUsersRepository.getCount());
 
-    if (!currentUser.getUser().isPresent()) {
+    if (!currentUser.isPresent()) {
       input.put("links","<a href=\"login\">Login</a> </br> <a href=\"registration\">Registration</a>");
     } else {
       input.put("links","<a href=\"balance\">Account manager</a> </br> <a href=\"logout\">Logout</a>");

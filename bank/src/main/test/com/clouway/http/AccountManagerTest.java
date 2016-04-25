@@ -2,10 +2,10 @@ package com.clouway.http;
 
 import com.clouway.core.*;
 
-import com.clouway.http.fakeclasses.FakeCurrentUser;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
+import com.google.common.base.Optional;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -29,7 +29,8 @@ public class AccountManagerTest {
     private FakeRequest request;
     private FakeResponse response;
     private FakeSession session;
-    private FakeCurrentUser currentUser=new FakeCurrentUser();
+    private final String sid="1234567890";
+    private final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -48,8 +49,8 @@ public class AccountManagerTest {
             }
         });
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public CurrentUser get(SessionFinder sessionFinder) {
-                return currentUser;
+            public Optional<CurrentUser> get(SessionFinder sessionFinder) {
+                return Optional.of(new CurrentUser(user,sid));
             }
         });
         DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
@@ -67,11 +68,8 @@ public class AccountManagerTest {
 
     @Test
     public void userBalance() throws IOException, ServletException {
-        final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-        final Cookie cookie=new Cookie("sid","1234567890");
+        final Cookie cookie=new Cookie("sid",sid);
         request.addCookies(cookie);
-
-        currentUser.setUser(user);
 
         context.checking(new Expectations() {{
             oneOf(loggedUsersRepository).getCount();
@@ -91,14 +89,11 @@ public class AccountManagerTest {
 
     @Test
     public void userWithdraw() throws IOException, ServletException, InsufficientAvailability {
-        final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-        final Cookie cookie=new Cookie("sid","1234567890");
+        final Cookie cookie=new Cookie("sid",sid);
         request.addCookies(cookie);
 
         request.setParameter("transactionType", "withdraw");
         request.setParameter("amount", "23.12");
-
-        currentUser.setUser(user);
 
         context.checking(new Expectations() {{
             oneOf(loggedUsersRepository).getCount();
@@ -120,11 +115,8 @@ public class AccountManagerTest {
 
     @Test
     public void userDeposit() throws IOException, ServletException {
-        final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-        final Cookie cookie=new Cookie("sid","1234567890");
+        final Cookie cookie=new Cookie("sid",sid);
         request.addCookies(cookie);
-
-        currentUser.setUser(user);
 
         request.setParameter("transactionType", "deposit");
         request.setParameter("amount", "23.12");

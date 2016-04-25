@@ -1,6 +1,7 @@
 package com.clouway.http.authorization;
 
 import com.clouway.core.*;
+import com.google.common.base.Optional;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -28,18 +29,18 @@ public class SecurityFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         String uri=req.getRequestURI();
-        if (uri.equals("/")){
-            chain.doFilter(request, response);
-            return;
-        }
 
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
-        String endpoint=uri.split("/")[1];
-        if (!currentUser.getUser().isPresent() && allowedPages.contains(endpoint)){
+        Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
+        String endpoint="";
+        String[] endpoints=uri.split("/");
+        if (endpoints.length>0){
+            endpoint=endpoints[1];
+        }
+        if (!currentUser.isPresent() && allowedPages.contains(endpoint)){
             chain.doFilter(request, response);
             return;
         }
-        if (currentUser.getUser().isPresent() && !allowedPages.contains(endpoint)) {
+        if (currentUser.isPresent()) {
             chain.doFilter(request, response);
         } else {
             resp.sendRedirect("/");

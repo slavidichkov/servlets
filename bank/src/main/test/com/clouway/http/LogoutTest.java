@@ -1,10 +1,10 @@
 package com.clouway.http;
 
 import com.clouway.core.*;
-import com.clouway.http.fakeclasses.FakeCurrentUser;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
+import com.google.common.base.Optional;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -29,7 +29,8 @@ public class LogoutTest {
     private FakeRequest request;
     private FakeResponse response;
     private FakeSession session;
-    private FakeCurrentUser currentUser=new FakeCurrentUser();
+    final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
+    final String sid = "1234567890";
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -48,8 +49,8 @@ public class LogoutTest {
             }
         });
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public CurrentUser get(SessionFinder sessionFinder) {
-                return currentUser;
+            public Optional<CurrentUser> get(SessionFinder sessionFinder) {
+                return Optional.of(new CurrentUser(user,sid));
             }
         });
         DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
@@ -65,14 +66,9 @@ public class LogoutTest {
 
     @Test
     public void happyPath() throws ServletException, IOException {
-        final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-        final String sid = "1234567890";
         final Cookie cookie = new Cookie("sid", sid);
 
         request.addCookies(cookie);
-
-        currentUser.setUser(user);
-        currentUser.setSid(sid);
 
         context.checking(new Expectations() {{
             oneOf(sessionsRepository).remove(sid);

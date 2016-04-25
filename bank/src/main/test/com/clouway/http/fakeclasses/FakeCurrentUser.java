@@ -8,7 +8,7 @@ import com.google.common.base.Optional;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class FakeCurrentUser implements CurrentUser{
+public class FakeCurrentUser {
     private User user;
     private String sid;
 

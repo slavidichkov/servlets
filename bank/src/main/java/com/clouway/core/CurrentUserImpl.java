@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
-public class CurrentUserImpl implements CurrentUser{
+public class CurrentUserImpl{
     private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
     private final UsersRepositoryFactory userRepositoryFactory = DependencyManager.getDependency(UsersRepositoryFactory.class);
     private SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();

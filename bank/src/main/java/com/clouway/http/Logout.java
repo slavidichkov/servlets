@@ -23,13 +23,12 @@ public class Logout extends HttpServlet {
         SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
         LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
 
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
-        Optional<User> optUser = currentUser.getUser();
+        Optional<CurrentUser> optCurrentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
 
-        if (optUser.isPresent()) {
-            String sid = currentUser.getSid();
+        if (optCurrentUser.isPresent()) {
+            String sid = optCurrentUser.get().getSessionID();
             sessionRepository.remove(sid);
-            loggedUsersRepository.logout(optUser.get());
+            loggedUsersRepository.logout(optCurrentUser.get().getUser());
         }
         resp.sendRedirect("/");
     }
