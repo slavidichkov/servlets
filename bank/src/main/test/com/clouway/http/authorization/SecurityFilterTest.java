@@ -2,7 +2,7 @@ package com.clouway.http.authorization;
 
 
 import com.clouway.core.*;
-import com.clouway.http.fakeclasses.FakeCurrentUser;
+import com.clouway.http.fakeclasses.FakeCurrentUserProvider;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
@@ -33,7 +33,7 @@ public class SecurityFilterTest {
     private FakeRequest request;
     private FakeResponse response;
     private FakeSession session;
-    private FakeCurrentUser currentUser;
+    private FakeCurrentUserProvider currentUserProvider;
     final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
     final String sid = "1234567890";
 
@@ -49,18 +49,13 @@ public class SecurityFilterTest {
 
     @Before
     public void setUp() {
-        currentUser=new FakeCurrentUser();
-
+        currentUserProvider =new FakeCurrentUserProvider();
         DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
             public SessionsRepository getSessionRepository() {
                 return sessionsRepository;
             }
         });
-        DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public Optional<CurrentUser> get(SessionFinder sessionFinder) {
-                return Optional.of(new CurrentUser(user,sid));
-            }
-        });
+        DependencyManager.addDependencies(CurrentUserProvider.class, currentUserProvider);
 
         securityFilter = new SecurityFilter(new HashSet<String>());
         session = new FakeSession();
@@ -75,6 +70,9 @@ public class SecurityFilterTest {
         request.addCookies(cookie);
         request.setRequestURI("/balance");
 
+        currentUserProvider.setUser(user);
+        currentUserProvider.setSessionID(sid);
+
         context.checking(new Expectations() {{
             oneOf(filterChain).doFilter(request, response);
         }});
@@ -84,8 +82,10 @@ public class SecurityFilterTest {
 
     @Test
     public void filterNotLoggedUser() throws IOException, ServletException {
-        currentUser.setUser(null);
         request.setRequestURI("/balance");
+
+        currentUserProvider.setSessionID(null);
+        currentUserProvider.setUser(null);
 
         context.checking(new Expectations() {{
             never(filterChain).doFilter(request, response);
