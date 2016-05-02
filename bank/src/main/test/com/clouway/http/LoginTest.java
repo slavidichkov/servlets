@@ -88,7 +88,6 @@ public class LoginTest {
     public void registeredUser() throws IOException, ServletException {
         final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
 
-        request.getSession().setAttribute("currentUser", user);
         request.setParameter("email", user.email);
         request.setParameter("password", user.password);
 
@@ -106,14 +105,11 @@ public class LoginTest {
 
         login.doPost(request, response);
 
-        assertThat((User) request.getSession().getAttribute("currentUser"), is(user));
         assertThat(response.getRedirectUrl(), is(equalTo("/balance")));
     }
 
     @Test
     public void notRegisteredUser() throws IOException, ServletException {
-        final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-
         request.setParameter("email", "nikola3423@abv.bg");
         request.setParameter("password", "sfsaeg");
 

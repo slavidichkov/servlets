@@ -1,7 +1,7 @@
 package com.clouway.http;
 
 import com.clouway.core.*;
-import com.clouway.http.authorization.CookieSessionFinder;
+import com.clouway.http.authorization.CookieSidGatherer;
 import com.google.common.base.Optional;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -28,7 +28,7 @@ public class Home extends HttpServlet{
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
+    Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
     printPage(resp.getWriter(),currentUser);
   }
 

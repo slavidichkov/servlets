@@ -49,7 +49,7 @@ public class AccountManagerTest {
             }
         });
         DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public Optional<CurrentUser> get(SessionFinder sessionFinder) {
+            public Optional<CurrentUser> get(SidGatherer sidGatherer) {
                 return Optional.of(new CurrentUser(user,sid));
             }
         });

@@ -1,7 +1,7 @@
 package com.clouway.http;
 
 import com.clouway.core.*;
-import com.clouway.http.authorization.CookieSessionFinder;
+import com.clouway.http.authorization.CookieSidGatherer;
 import com.google.common.base.Optional;
 
 import javax.servlet.ServletException;
@@ -23,7 +23,7 @@ public class Logout extends HttpServlet {
         SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
         LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
 
-        Optional<CurrentUser> optCurrentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
+        Optional<CurrentUser> optCurrentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
 
         if (optCurrentUser.isPresent()) {
             String sid = optCurrentUser.get().getSessionID();

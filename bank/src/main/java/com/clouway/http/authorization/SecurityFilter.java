@@ -30,7 +30,7 @@ public class SecurityFilter implements Filter {
 
         String uri=req.getRequestURI();
 
-        Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies()));
+        Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
         String endpoint="";
         String[] endpoints=uri.split("/");
         if (endpoints.length>0){

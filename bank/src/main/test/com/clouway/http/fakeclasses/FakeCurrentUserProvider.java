@@ -2,7 +2,7 @@ package com.clouway.http.fakeclasses;
 
 import com.clouway.core.CurrentUser;
 import com.clouway.core.CurrentUserProvider;
-import com.clouway.core.SessionFinder;
+import com.clouway.core.SidGatherer;
 import com.clouway.core.User;
 import com.google.common.base.Optional;
 
@@ -13,7 +13,7 @@ public class FakeCurrentUserProvider implements CurrentUserProvider {
     private User user;
     private String sessionID;
 
-    public Optional<CurrentUser> get(SessionFinder sessionFinder) {
+    public Optional<CurrentUser> get(SidGatherer sidGatherer) {
         if (sessionID!=null && user!=null){
             return Optional.of(new CurrentUser(user,sessionID));
         }

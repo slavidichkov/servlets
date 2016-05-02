@@ -2,8 +2,7 @@ package com.clouway.http;
 
 import com.clouway.adapter.persistence.sql.DatabaseException;
 import com.clouway.core.*;
-import com.clouway.http.authorization.CookieSessionFinder;
-import com.google.common.base.Optional;
+import com.clouway.http.authorization.CookieSidGatherer;
 
 import freemarker.template.*;
 import javax.servlet.ServletException;
@@ -28,7 +27,7 @@ public class AccountManager extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, DatabaseException {
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies())).get();
+        CurrentUser currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies())).get();
         Double userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(currentUser.getUser());
         printPage(resp.getWriter(), userBalance,"");
     }
@@ -41,7 +40,7 @@ public class AccountManager extends HttpServlet {
         String transactionType = req.getParameter("transactionType");
         String amount = req.getParameter("amount");
 
-        CurrentUser currentUser = currentUserProvider.get(new CookieSessionFinder(req.getCookies())).get();
+        CurrentUser currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies())).get();
         User user = currentUser.getUser();
 
         String errorMessage=amountErrorMessage;

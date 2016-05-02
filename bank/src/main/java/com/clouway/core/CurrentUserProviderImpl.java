@@ -11,8 +11,8 @@ public class CurrentUserProviderImpl implements CurrentUserProvider {
   private SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
   private UsersRepository userRepository=userRepositoryFactory.getUserRepository();
 
-  public Optional<CurrentUser> get(SessionFinder sessionFinder){
-    Optional<Session> optSession = sessionRepository.getSession(sessionFinder.getId());
+  public Optional<CurrentUser> get(SidGatherer sidGatherer){
+    Optional<Session> optSession = sessionRepository.getSession(sidGatherer.getSid());
     if (!optSession.isPresent()){
       return Optional.absent();
     }
