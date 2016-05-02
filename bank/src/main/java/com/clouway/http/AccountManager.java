@@ -43,21 +43,25 @@ public class AccountManager extends HttpServlet {
         CurrentUser currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies())).get();
         User user = currentUser.getUser();
 
-        String errorMessage=amountErrorMessage;
-        if (isValidAmount(amount) && "withdraw".equals(transactionType)) {
-            errorMessage="";
+        String errorMessage="";
+        Double balance = accountsRepository.getBalance(user);
+
+        if(!isValidAmount(amount)){
+            errorMessage=amountErrorMessage;
+            printPage(resp.getWriter(),balance, errorMessage);
+            return;
+        }
+        if ("withdraw".equals(transactionType)) {
             try {
-                accountsRepository.withdraw(user, Double.valueOf(amount));
+                balance = accountsRepository.withdraw(user, Double.valueOf(amount));
             } catch (InsufficientAvailability ex) {
                 errorMessage = "Can not withdraw the given amount";
             }
         }
-        if (isValidAmount(amount) && "deposit".equals(transactionType)) {
-            errorMessage="";
-            accountsRepository.deposit(user, Double.valueOf(amount));
-
+        if ("deposit".equals(transactionType)) {
+            balance = accountsRepository.deposit(user, Double.valueOf(amount));
         }
-        printPage(resp.getWriter(),accountsRepository.getBalance(user), errorMessage);
+        printPage(resp.getWriter(),balance, errorMessage);
     }
 
     private boolean isValidAmount(String amount){
