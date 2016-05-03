@@ -7,16 +7,17 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class SecurityFilter implements Filter {
-    private final HashSet<String> allowedPages;
-    private CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
+    private final Set<String> allowedPages;
+    private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
+    private SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
 
-    public SecurityFilter(HashSet<String> allowedPages) {
+    public SecurityFilter(Set<String> allowedPages) {
         this.allowedPages = allowedPages;
     }
 
@@ -29,22 +30,27 @@ public class SecurityFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         String uri=req.getRequestURI();
+        SidGatherer sidGatherer = new CookieSidGatherer(req.getCookies());
 
-        Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
+        Optional<Session> optSession = sessionRepository.getSession(sidGatherer.getSid());
+
         String endpoint="";
         String[] endpoints=uri.split("/");
         if (endpoints.length>0){
             endpoint=endpoints[1];
         }
-        if (!currentUser.isPresent() && allowedPages.contains(endpoint)){
+        if (optSession.isPresent() && optSession.get().isExpired()){
+            resp.sendRedirect("/logout");
+        }
+        if (optSession.isPresent() && optSession.get().isExpired()){
+            sessionRepository.updateSessionExpiresOn(optSession.get().ID);
+        }
+        if ((!optSession.isPresent() && allowedPages.contains(endpoint)) || (optSession.isPresent() && !allowedPages.contains(endpoint)) || (endpoint.equals("logout")) || (endpoint.equals(""))){
             chain.doFilter(request, response);
             return;
         }
-        if (currentUser.isPresent()) {
-            chain.doFilter(request, response);
-        } else {
-            resp.sendRedirect("/");
-        }
+        resp.sendRedirect("/");
+
     }
 
     public void destroy() {

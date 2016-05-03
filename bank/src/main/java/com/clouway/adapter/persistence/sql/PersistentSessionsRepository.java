@@ -41,4 +41,8 @@ public class PersistentSessionsRepository implements SessionsRepository {
     databaseHelper.executeUpdate("DELETE FROM sessions WHERE ID=?", session.ID);
     loggedUsersRepositoryFactory.getLoggedUsersRepository().logout(session.userEmail);
   }
+
+  public void updateSessionExpiresOn(String sessionID) {
+    databaseHelper.executeUpdate("UPDATE sessions SET sessionExpiresOn=? WHERE ID=?", time.now().getTime()+sessionExpiresTime,sessionID);
+  }
 }

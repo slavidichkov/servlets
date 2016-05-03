@@ -9,4 +9,5 @@ public interface SessionsRepository {
     void register(Session session);
     Optional<Session> getSession(String sessionID);
     void remove(Session session);
+    void updateSessionExpiresOn(String sessionID);
 }

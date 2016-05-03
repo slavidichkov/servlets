@@ -2,7 +2,6 @@ package com.clouway.http.authorization;
 
 
 import com.clouway.core.*;
-import com.clouway.http.fakeclasses.FakeCurrentUserProvider;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
@@ -19,7 +18,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -33,9 +34,23 @@ public class SecurityFilterTest {
     private FakeRequest request;
     private FakeResponse response;
     private FakeSession session;
-    private FakeCurrentUserProvider currentUserProvider;
     final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
     final String sid = "1234567890";
+    private FakeTime time=new FakeTime();
+    private long timeNow = 1459234212051L;
+    private Set<String> allowedPages = new HashSet<String>(){{
+        add("login");
+    }};
+
+    private class FakeTime implements Time {
+        public Date now() {
+            return new Date(timeNow);
+        }
+
+        public Date after(int hour) {
+            return new Date(now().getTime() + 1000*60*60*hour);
+        }
+    }
 
 
     @Rule
@@ -49,15 +64,14 @@ public class SecurityFilterTest {
 
     @Before
     public void setUp() {
-        currentUserProvider =new FakeCurrentUserProvider();
         DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
             public SessionsRepository getSessionRepository() {
                 return sessionsRepository;
             }
         });
-        DependencyManager.addDependencies(CurrentUserProvider.class, currentUserProvider);
+        DependencyManager.addDependencies(Time.class, time);
 
-        securityFilter = new SecurityFilter(new HashSet<String>());
+        securityFilter = new SecurityFilter(allowedPages);
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();
@@ -65,15 +79,15 @@ public class SecurityFilterTest {
 
 
     @Test
-    public void doNotFilterLoggedUser() throws IOException, ServletException {
-        final Cookie cookie=new Cookie("sid","1234567890");
+    public void doNotFilterLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
+        final Cookie cookie=new Cookie("sid",sid);
+        final long sessionExpiresOn = timeNow + 10;
         request.addCookies(cookie);
         request.setRequestURI("/balance");
 
-        currentUserProvider.setUser(user);
-        currentUserProvider.setSessionID(sid);
-
         context.checking(new Expectations() {{
+            oneOf(sessionsRepository).getSession(sid);
+            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
             oneOf(filterChain).doFilter(request, response);
         }});
 
@@ -81,18 +95,53 @@ public class SecurityFilterTest {
     }
 
     @Test
-    public void filterNotLoggedUser() throws IOException, ServletException {
+    public void filterNotLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
         request.setRequestURI("/balance");
 
-        currentUserProvider.setSessionID(null);
-        currentUserProvider.setUser(null);
-
         context.checking(new Expectations() {{
+            oneOf(sessionsRepository).getSession("");
+            will(returnValue(Optional.absent()));
             never(filterChain).doFilter(request, response);
         }});
 
         securityFilter.doFilter(request, response, filterChain);
 
         assertThat(response.getRedirectUrl(), is(equalTo("/")));
+    }
+
+    @Test
+    public void filterLoggedUserTryingToOpenAllowedPage() throws IOException, ServletException {
+        final Cookie cookie=new Cookie("sid",sid);
+        final long sessionExpiresOn = timeNow + 10;
+        request.addCookies(cookie);
+        request.setRequestURI("/login");
+
+        context.checking(new Expectations() {{
+            oneOf(sessionsRepository).getSession(sid);
+            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
+            never(filterChain).doFilter(request, response);
+        }});
+
+        securityFilter.doFilter(request, response, filterChain);
+
+        assertThat(response.getRedirectUrl(), is(equalTo("/")));
+    }
+
+    @Test
+    public void filterLoggedUserWithExpiresSession() throws IOException, ServletException {
+        final Cookie cookie=new Cookie("sid",sid);
+        final long sessionExpiresOn = timeNow - 10;
+        request.addCookies(cookie);
+        request.setRequestURI("/balance");
+
+        context.checking(new Expectations() {{
+            oneOf(sessionsRepository).getSession(sid);
+            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
+            never(filterChain).doFilter(request, response);
+        }});
+
+        securityFilter.doFilter(request, response, filterChain);
+
+        assertThat(response.getRedirectUrl(), is(equalTo("/logout")));
     }
 }

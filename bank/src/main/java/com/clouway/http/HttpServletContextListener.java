@@ -29,14 +29,15 @@ public class HttpServletContextListener implements ServletContextListener {
     DependencyManager.addDependencies(UserValidator.class, new RegularExpressionUserValidator());
     DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProviderImpl());
     DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class,new PersistentLoggedUsersRepositoryFactory());
+    Set<String> allowedPages=new HashSet<String>() {{
+      add("login");
+      add("registration");
+    }};
 
     ServletContext servletContext = servletContextEvent.getServletContext();
 
     servletContext.addFilter("errorFilter",new ErrorFilter()).addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
-    servletContext.addFilter("securityFilter", new SecurityFilter(new HashSet<String>() {{
-      add("login");
-      add("registration");
-    }})).addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
+    servletContext.addFilter("securityFilter", new SecurityFilter(allowedPages)).addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
     servletContext.addServlet("errorpage", new ErrorPage()).addMapping("/errorpage");
     servletContext.addServlet("login", new Login()).addMapping("/login");
     servletContext.addServlet("logout", new Logout()).addMapping("/logout");
