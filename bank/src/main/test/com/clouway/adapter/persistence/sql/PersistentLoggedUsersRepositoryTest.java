@@ -27,16 +27,16 @@ public class PersistentLoggedUsersRepositoryTest {
 
   @Test
   public void loginUser() {
-    loggedUsersRepository.login(new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23));
+    loggedUsersRepository.login("ivan@abv.bg");
     assertThat(loggedUsersRepository.getCount(), is(equalTo(1)));
   }
 
   @Test
   public void logoutUser() {
-    loggedUsersRepository.login(new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23));
+    loggedUsersRepository.login("ivan@abv.bg");
     assertThat(loggedUsersRepository.getCount(), is(equalTo(1)));
 
-    loggedUsersRepository.logout(new User("ivan", "ivan123", "ivan@abv.bg", "ivan123", "sliven", 23));
+    loggedUsersRepository.logout("ivan@abv.bg");
     assertThat(loggedUsersRepository.getCount(), is(equalTo(0)));
   }
 }

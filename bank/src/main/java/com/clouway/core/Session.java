@@ -8,13 +8,21 @@ import java.util.Date;
 public class Session {
     public final String ID;
     public final String userEmail;
-    public final long sessionExpiresOn;
-    public static final long sessionExpiresTime = 1000 * 60 * 60 * 5;
+    private long sessionExpiresOn;
 
     public Session(String ID, String userEmail, long sessionExpiresOn) {
         this.ID = ID;
         this.userEmail = userEmail;
         this.sessionExpiresOn = sessionExpiresOn;
+    }
+
+    public Session(String ID, String userEmail) {
+        this.ID = ID;
+        this.userEmail = userEmail;
+    }
+
+    public long getSessionExpiresOn() {
+        return sessionExpiresOn;
     }
 
     @Override
@@ -24,7 +32,6 @@ public class Session {
 
         Session session = (Session) o;
 
-        if (sessionExpiresOn != session.sessionExpiresOn) return false;
         if (ID != null ? !ID.equals(session.ID) : session.ID != null) return false;
         return userEmail != null ? userEmail.equals(session.userEmail) : session.userEmail == null;
 
@@ -34,7 +41,6 @@ public class Session {
     public int hashCode() {
         int result = ID != null ? ID.hashCode() : 0;
         result = 31 * result + (userEmail != null ? userEmail.hashCode() : 0);
-        result = 31 * result + (int) (sessionExpiresOn ^ (sessionExpiresOn >>> 32));
         return result;
     }
 }

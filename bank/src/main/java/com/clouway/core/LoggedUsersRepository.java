@@ -4,7 +4,7 @@ package com.clouway.core;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public interface LoggedUsersRepository {
-  void login(User user);
-  void logout(User user);
+  void login(String email);
+  void logout(String email);
   int getCount();
 }

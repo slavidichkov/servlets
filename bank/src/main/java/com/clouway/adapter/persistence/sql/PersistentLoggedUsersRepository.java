@@ -16,24 +16,24 @@ public class PersistentLoggedUsersRepository implements LoggedUsersRepository {
     this.dataSource = dataSource;
   }
 
-  public void login(User user) {
+  public void login(String email) {
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
       PreparedStatement statement=connection.prepareStatement("INSERT INTO loggedusers(userEmail) VALUES (?)");
-      statement.setString(1,user.email);
+      statement.setString(1,email);
       statement.execute();
     } catch (SQLException e) {
       throw new DatabaseException();
     }
   }
 
-  public void logout(User user) {
+  public void logout(String email) {
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
       PreparedStatement statement=connection.prepareStatement("DELETE FROM loggedusers WHERE userEmail =?");
-      statement.setString(1,user.email);
+      statement.setString(1,email);
       statement.execute();
     } catch (SQLException e) {
       throw new DatabaseException();

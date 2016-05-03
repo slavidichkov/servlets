@@ -71,8 +71,7 @@ public class LogoutTest {
         request.addCookies(cookie);
 
         context.checking(new Expectations() {{
-            oneOf(sessionsRepository).remove(sid);
-            oneOf(loggedUsersRepository).logout(user);
+            oneOf(sessionsRepository).remove(new Session(sid,user.email));
         }});
 
         logout.doPost(request, response);

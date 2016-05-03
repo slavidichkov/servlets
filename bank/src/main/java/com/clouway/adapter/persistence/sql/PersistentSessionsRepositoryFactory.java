@@ -11,6 +11,6 @@ import javax.sql.DataSource;
 public class PersistentSessionsRepositoryFactory implements SessionsRepositoryFactory {
     public SessionsRepository getSessionRepository() {
         DataSource dataSource = new AppDataSource().getConfiguredDataSource();
-        return new PersistentSessionsRepository(new DatabaseHelper(dataSource));
+        return new PersistentSessionsRepository(new DatabaseHelper(dataSource), 1000 * 60 * 60 * 5);
     }
 }

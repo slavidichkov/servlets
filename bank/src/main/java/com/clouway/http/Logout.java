@@ -15,20 +15,18 @@ import java.io.IOException;
  */
 public class Logout extends HttpServlet {
     private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
-    private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
     private final CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
-        LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
 
         Optional<CurrentUser> optCurrentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
 
         if (optCurrentUser.isPresent()) {
             String sid = optCurrentUser.get().getSessionID();
-            sessionRepository.remove(sid);
-            loggedUsersRepository.logout(optCurrentUser.get().getUser());
+            User user=optCurrentUser.get().getUser();
+            sessionRepository.remove(new Session(sid,user.email));
         }
         resp.sendRedirect("/");
     }

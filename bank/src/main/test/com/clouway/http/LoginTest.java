@@ -32,22 +32,10 @@ public class LoginTest {
     private FakeSession session;
     private FakeRequest request;
     private FakeResponse response;
-    private FakeTime time=new FakeTime();
     private FakeUIDGenerator uidGenerator=new FakeUIDGenerator();
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
-
-    private class FakeTime implements Time {
-
-        public Date now() {
-            return new Date(1459234212051L);
-        }
-
-        public Date after(int hour) {
-            return new Date(now().getTime() + 1000*60*60*hour);
-        }
-    }
 
     @Mock
     UsersRepository userRepository;
@@ -76,7 +64,6 @@ public class LoginTest {
             }
         });
         DependencyManager.addDependencies(UIDGenerator.class, uidGenerator);
-        DependencyManager.addDependencies(Time.class, time);
         DependencyManager.addDependencies(UserValidator.class,new  RegularExpressionUserValidator());
         login = new Login();
         session = new FakeSession();
@@ -96,8 +83,7 @@ public class LoginTest {
         context.checking(new Expectations() {{
             oneOf(userRepository).getUser("ivan@abv.bg");
             will(returnValue(Optional.of(user)));
-            oneOf(loggedUsersRepository).login(user);
-            oneOf(sessionsRepository).register(new Session("1234567890", "ivan@abv.bg", time.now().getTime()+Session.sessionExpiresTime));
+            oneOf(sessionsRepository).register(new Session("1234567890", "ivan@abv.bg"));
         }});
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
