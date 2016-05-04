@@ -39,18 +39,31 @@ public class SecurityFilter implements Filter {
         if (endpoints.length>0){
             endpoint=endpoints[1];
         }
-        if (optSession.isPresent() && optSession.get().isExpired()){
-            resp.sendRedirect("/logout");
+        if (endpoint.equals("errorpage")){
+            resp.sendRedirect("/");
+            return;
         }
         if (optSession.isPresent() && optSession.get().isExpired()){
+            sessionRepository.remove(optSession.get());
+            resp.sendRedirect("/login");
+            return;
+        }
+        if (optSession.isPresent() && !optSession.get().isExpired()){
             sessionRepository.updateSessionExpiresOn(optSession.get().ID);
         }
-        if ((!optSession.isPresent() && allowedPages.contains(endpoint)) || (optSession.isPresent() && !allowedPages.contains(endpoint)) || (endpoint.equals("logout")) || (endpoint.equals(""))){
+        if (isPageAllowed(optSession, endpoint)|| (endpoint.equals("logout")) || (endpoint.equals(""))){
             chain.doFilter(request, response);
             return;
         }
         resp.sendRedirect("/");
 
+    }
+
+    private boolean isPageAllowed(Optional<Session> optSession, String endpoint) {
+        if (optSession.isPresent()){
+            return !allowedPages.contains(endpoint);
+        }
+        return allowedPages.contains(endpoint);
     }
 
     public void destroy() {
