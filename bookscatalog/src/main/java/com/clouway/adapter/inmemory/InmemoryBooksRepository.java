@@ -27,7 +27,7 @@ public class InmemoryBooksRepository implements com.clouway.core.BooksRepository
         add(new Book("Java clean code", "Bullvest", 1213243535L));
         add(new Book("Design paterns", "Helikon", 1213243535L));
     }};
-    public List<Book> get() {
+    public List<Book> getAllBooks() {
         return books;
     }
 }
