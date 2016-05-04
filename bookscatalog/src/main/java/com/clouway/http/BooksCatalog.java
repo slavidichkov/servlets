@@ -28,7 +28,7 @@ public class BooksCatalog extends HttpServlet {
         String pagePointer = req.getParameter("pagePointer");
         List<Book> books= booksRepository.get();
 
-        pageBean.setList(books);
+        pageBean.initialItems(books);
 
         if (pagePointer==null){
             printPage(resp.getWriter(),pageBean.firstPage(),pageBean.getCurrentPageNumber());

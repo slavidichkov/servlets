@@ -64,9 +64,9 @@ public class BooksCatalogTest {
         fakeResponse.setOutputStream(out);
 
         context.checking(new Expectations() {{
-            oneOf(booksRepository).get();
+            oneOf(booksRepository).getAllBooks();
             will(returnValue(books));
-            oneOf(pageBean).setList(books);
+            oneOf(pageBean).initialItems(books);
             oneOf(pageBean).firstPage();
             will(returnValue(booksPage));
             oneOf(pageBean).getCurrentPageNumber();
@@ -99,9 +99,9 @@ public class BooksCatalogTest {
         fakeResponse.setOutputStream(out);
 
         context.checking(new Expectations() {{
-            oneOf(booksRepository).get();
+            oneOf(booksRepository).getAllBooks();
             will(returnValue(books));
-            oneOf(pageBean).setList(books);
+            oneOf(pageBean).initialItems(books);
             oneOf(pageBean).lastPage();
             will(returnValue(booksPage));
             oneOf(pageBean).getCurrentPageNumber();
@@ -132,9 +132,9 @@ public class BooksCatalogTest {
         fakeResponse.setOutputStream(out);
 
         context.checking(new Expectations() {{
-            oneOf(booksRepository).get();
+            oneOf(booksRepository).getAllBooks();
             will(returnValue(books));
-            oneOf(pageBean).setList(books);
+            oneOf(pageBean).initialItems(books);
             oneOf(pageBean).next();
             will(returnValue(booksPage));
             oneOf(pageBean).getCurrentPageNumber();
@@ -166,9 +166,9 @@ public class BooksCatalogTest {
         fakeResponse.setOutputStream(out);
 
         context.checking(new Expectations() {{
-            oneOf(booksRepository).get();
+            oneOf(booksRepository).getAllBooks();
             will(returnValue(books));
-            oneOf(pageBean).setList(books);
+            oneOf(pageBean).initialItems(books);
             oneOf(pageBean).previous();
             will(returnValue(booksPage));
             oneOf(pageBean).getCurrentPageNumber();

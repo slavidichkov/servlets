@@ -10,12 +10,12 @@ public class PageBeanImpl<T> implements PageBean{
     private int firstIndex;
     private int lastIndex;
     private int pageSize = 10;
-    private List<T> rows = null;
+    private List<T> items = null;
 
-    public void setList(List list) {
-        if (rows==null){
-            rows= new ArrayList<T>();
-            rows.addAll(list);
+    public void initialItems(List list) {
+        if (items ==null){
+            items = new ArrayList<T>();
+            items.addAll(list);
         }
     }
 
@@ -24,15 +24,15 @@ public class PageBeanImpl<T> implements PageBean{
     }
 
     public List<T> next() {
-        if (firstIndex == 0 && lastIndex == 0 && pageSize < rows.size()) {
+        if (firstIndex == 0 && lastIndex == 0 && pageSize < items.size()) {
             lastIndex += pageSize;
-        } else if (hasNext() && lastIndex + pageSize < rows.size()) {
+        } else if (hasNext() && lastIndex + pageSize < items.size()) {
             firstIndex += pageSize;
             lastIndex += pageSize;
         } else {
             return lastPage();
         }
-        return rows.subList(firstIndex, lastIndex);
+        return items.subList(firstIndex, lastIndex);
     }
 
     public List<T> previous() {
@@ -42,11 +42,11 @@ public class PageBeanImpl<T> implements PageBean{
         } else {
             return firstPage();
         }
-        return rows.subList(firstIndex, lastIndex);
+        return items.subList(firstIndex, lastIndex);
     }
 
     public boolean hasNext() {
-        return (lastIndex != rows.size());
+        return (lastIndex != items.size());
     }
 
     public boolean hasPrevious() {
@@ -56,14 +56,14 @@ public class PageBeanImpl<T> implements PageBean{
     public List<T> firstPage() {
         firstIndex = 0;
         lastIndex = firstIndex + pageSize;
-        return rows.subList(firstIndex, lastIndex);
+        return items.subList(firstIndex, lastIndex);
     }
 
     public List<T> lastPage() {
-        lastIndex = rows.size();
-        int temp = (rows.size()) % pageSize;
+        lastIndex = items.size();
+        int temp = (items.size()) % pageSize;
         firstIndex = lastIndex - temp;
-        return rows.subList(firstIndex, lastIndex);
+        return items.subList(firstIndex, lastIndex);
     }
 
     public int getCurrentPageNumber() {
