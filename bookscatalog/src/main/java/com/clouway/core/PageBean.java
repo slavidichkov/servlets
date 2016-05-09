@@ -12,5 +12,6 @@ public interface PageBean<T> {
     List<T> previous();
     List<T> firstPage();
     List<T> lastPage();
+    List<T> goToPage(int pageNumber);
     int getCurrentPageNumber();
 }
