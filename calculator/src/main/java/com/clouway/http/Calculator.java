@@ -29,30 +29,36 @@ public class Calculator extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String buttonValue = req.getParameter("clickedButton");
         String displayValue = req.getParameter("display");
+        PrintWriter writer=resp.getWriter();
 
-        if ("C".equals(buttonValue) && !"".equals(displayValue)) {
-            displayValue = displayValue.substring(0, displayValue.length() - 1);
-        }
-        if ("CE".equals(buttonValue) && !"".equals(displayValue)) {
-            displayValue = "";
-        }
         if (isNumber(buttonValue)) {
             displayValue += buttonValue;
         }
-        if (isOperator(buttonValue) && !"".equals(displayValue) && !isOperator(String.valueOf(displayValue.charAt(displayValue.length() - 1)))) {
+        if ("".equals(displayValue)){
+            writer.println(printPage(displayValue));
+            writer.flush();
+            return;
+        }
+        if ("C".equals(buttonValue)) {
+            displayValue = displayValue.substring(0, displayValue.length() - 1);
+        }
+        if ("CE".equals(buttonValue)) {
+            displayValue = "";
+        }
+        if ( isLastSymbolOperator(buttonValue)&& ! isLastSymbolOperator(displayValue)) {
             displayValue += buttonValue;
         }
-        if ("=".equals(buttonValue) && !"".equals(displayValue) && !isOperator(String.valueOf(displayValue.charAt(displayValue.length() - 1)))) {
+        if ("=".equals(buttonValue) && ! isLastSymbolOperator(displayValue)) {
 
             displayValue = stringCalculator.eval(displayValue);
         }
-        PrintWriter writer=resp.getWriter();
         writer.println(printPage(displayValue));
         writer.flush();
     }
 
-    private boolean isOperator(String value) {
-        return value.matches("[-+*/]");
+    private boolean  isLastSymbolOperator(String value) {
+        String s = String.valueOf(value.charAt(value.length() - 1));
+        return s.matches("[-+*/]");
     }
 
     private boolean isNumber(String value) {
