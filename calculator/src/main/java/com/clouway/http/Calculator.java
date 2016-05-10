@@ -1,6 +1,5 @@
 package com.clouway.http;
 
-import com.clouway.core.SimpleStringCalculator;
 import com.clouway.core.StringCalculator;
 
 import javax.servlet.ServletException;
@@ -45,19 +44,36 @@ public class Calculator extends HttpServlet {
         if ("CE".equals(buttonValue)) {
             displayValue = "";
         }
-        if ( isLastSymbolOperator(buttonValue)&& ! isLastSymbolOperator(displayValue)) {
+        if ( isLastSymbolOperator(buttonValue) && !isLastSymbolOperator(displayValue)) {
             displayValue += buttonValue;
         }
-        if ("=".equals(buttonValue) && ! isLastSymbolOperator(displayValue)) {
-
+        if (isPoint(buttonValue) && !isPointLastUsedOperator(displayValue)){
+            displayValue += buttonValue;
+        }
+        if ("=".equals(buttonValue) && !isLastSymbolOperator(displayValue) && !isPointLastUsedOperator(displayValue)) {
             displayValue = stringCalculator.eval(displayValue);
         }
         writer.println(printPage(displayValue));
         writer.flush();
     }
 
-    private boolean  isLastSymbolOperator(String value) {
+    private boolean isLastSymbolOperator(String value) {
         return value.substring(value.length() - 1).matches("[-+*/]");
+    }
+
+    private boolean isPoint(String value) {
+        return value.substring(value.length() - 1).matches("[.]");
+    }
+
+    private boolean  isPointLastUsedOperator(String value) {
+        String lastUsedOperator = "";
+        for (int i=0; i<value.length(); i++){
+            String symbol=value.substring(i,i+1);
+            if (symbol.matches("[-+*/.]")){
+                lastUsedOperator=symbol;
+            }
+        }
+        return ".".equals(lastUsedOperator);
     }
 
     private boolean isNumber(String value) {
@@ -79,7 +95,8 @@ public class Calculator extends HttpServlet {
                 "    </div>" +
                 "    <div>" +
                 "        <button type=\"submit\" name=\"clickedButton\" VALUE=\"CE\" style=\"height:30px; width:103px\">CE</button>" +
-                "        <button type=\"submit\" name=\"clickedButton\" VALUE=\"C\" style=\"height:30px; width:103px\">C</button>" +
+                "        <button type=\"submit\" name=\"clickedButton\" VALUE=\"C\" style=\"height:30px; width:49px\">C</button>" +
+                "        <button type=\"submit\" name=\"clickedButton\" VALUE=\".\" style=\"height:30px; width:49px\">.</button>" +
                 "    </div>" +
                 "    <div>" +
                 "        <button type=\"submit\" name=\"clickedButton\" VALUE=\"1\" style=\"height:30px; width:49px\">1</button>" +

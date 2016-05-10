@@ -13,47 +13,55 @@ public class SimpleStringCalculator implements StringCalculator {
     List<String> numbers = new ArrayList(Arrays.asList(input.split("[-+*/]")));
     List<String> operators = new ArrayList(Arrays.asList(input.split("[0-9]")));
     operators.removeAll(Collections.singleton(""));
-    return calculate(numbers,operators);
+    operators.removeAll(Collections.singleton("."));
+    return calculate(numbers, operators);
   }
 
   private String calculate(List<String> numbers, List<String> operators) {
     int i=0;
-    int result=new Integer(numbers.get(0));
+    double result = Double.valueOf(numbers.get(i));
     while ( i < operators.size()) {
-      int temp=0;
-      if (i + 1 != operators.size()) {
-        if ("*".equals(operators.get(i + 1))) {
-          temp = new Integer(numbers.get(i + 1)) * new Integer(numbers.get(i + 2));
-          result = calculateValues(result, temp, operators.get(i));
-          i += 2;
-          continue;
-        } else if ("/".equals(operators.get(i + 1))) {
-          temp = new Integer(numbers.get(i + 1)) / new Integer(numbers.get(i + 2));
-          result = calculateValues(result, temp, operators.get(i));
-          i += 2;
-          continue;
-        }
-      }
-      result = calculateValues(result,new Integer(numbers.get(i + 1)),operators.get(i));
-      i++;
+      if ("*".equals(operators.get(i))) {
+        Double product = new Double(numbers.get(i)) * new Double(numbers.get(i + 1));
+        numbers.remove(i);
+        numbers.set(i, product.toString());
+        operators.remove(i);
+        result = product;
 
+        if (!operators.contains("/") && !operators.contains("*")) {
+          result = Double.valueOf(numbers.get(0));
+          i = 0;
+        }
+        continue;
+      }
+      if ("/".equals(operators.get(i))) {
+        Double product = new Double(numbers.get(i)) / new Double(numbers.get(i + 1));
+        numbers.remove(i);
+        numbers.set(i, product.toString());
+        operators.remove(i);
+        result = product;
+
+        if (!operators.contains("/") && !operators.contains("*")) {
+          result = Double.valueOf(numbers.get(0));
+          i = 0;
+        }
+        continue;
+      }
+      if (!operators.contains("/") && !operators.contains("*")) {
+        result = calculateValues(result, Double.valueOf(numbers.get(i+1)), operators.get(i));
+      }
+      i++;
     }
     return String.valueOf(result);
   }
 
-  private int calculateValues(int firsValue, int secondValue, String operator) {
-    int result=0;
+  private double calculateValues(double firsValue, double secondValue, String operator) {
+    double result=0;
     if ("+".equals(operator)) {
       result = firsValue + secondValue;
     }
     if ("-".equals(operator)) {
       result = firsValue - secondValue;
-    }
-    if ("*".equals(operator)) {
-      result = firsValue * secondValue;
-    }
-    if ("/".equals(operator)) {
-      result = firsValue / secondValue;
     }
     return result;
   }
