@@ -27,35 +27,27 @@ public class BooksCatalog extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String pagePointer = req.getParameter("pagePointer");
-    String pageNumber = req.getParameter("pageNumber");
-    System.out.println(pageNumber);
-    List<Book> books = booksRepository.getAllBooks();
 
+    List<Book> books = booksRepository.getAllBooks();
+    List<Book> currentPage=new ArrayList<Book>();
     pageBean.initialItems(books);
 
-
     if ("lastPage".equals(pagePointer)) {
-      printPage(resp.getWriter(), pageBean.lastPage(), pageBean.getCurrentPageNumber());
-      return;
+      currentPage=pageBean.lastPage();
     }
     if ("firstPage".equals(pagePointer)) {
-      printPage(resp.getWriter(), pageBean.firstPage(), pageBean.getCurrentPageNumber());
-      return;
+      currentPage = pageBean.firstPage();
     }
     if ("nextPage".equals(pagePointer)) {
-      printPage(resp.getWriter(), pageBean.next(), pageBean.getCurrentPageNumber());
-      return;
+      currentPage = pageBean.next();
     }
     if ("previousPage".equals(pagePointer)) {
-      printPage(resp.getWriter(), pageBean.previous(), pageBean.getCurrentPageNumber());
-      return;
+      currentPage = pageBean.previous();
     }
-    if (pageNumber == null) {
-      printPage(resp.getWriter(), pageBean.firstPage(), pageBean.getCurrentPageNumber());
-      return;
-    } else {
-      printPage(resp.getWriter(), pageBean.goToPage(Integer.parseInt(pageNumber)), pageBean.getCurrentPageNumber());
+    if (pagePointer == null) {
+      currentPage = pageBean.firstPage();
     }
+    printPage(resp.getWriter(), currentPage, pageBean.getCurrentPageNumber());
   }
 
   private void printPage(PrintWriter printWriter, List<Book> books, int currentPageNumber) {
