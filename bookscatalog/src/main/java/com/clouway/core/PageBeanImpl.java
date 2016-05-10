@@ -25,7 +25,7 @@ public class PageBeanImpl<T> implements PageBean {
       return lastPage();
     }
     pageNumber++;
-    return items.subList(pageNumber * pageSize, pageNumber * pageSize + pageSize);
+    return goToPage(pageNumber);
   }
 
   public List<T> previous() {
@@ -33,7 +33,7 @@ public class PageBeanImpl<T> implements PageBean {
       return firstPage();
     }
     pageNumber--;
-    return items.subList(pageNumber * pageSize, pageNumber * pageSize + pageSize);
+    return goToPage(pageNumber);
   }
 
   private boolean hasNext() {
@@ -46,7 +46,7 @@ public class PageBeanImpl<T> implements PageBean {
 
   public List<T> firstPage() {
     pageNumber = 0;
-    return items.subList(pageNumber, pageNumber + pageSize);
+    return goToPage(pageNumber);
   }
 
   public List<T> lastPage() {
@@ -54,13 +54,13 @@ public class PageBeanImpl<T> implements PageBean {
     if (pageSize > items.size()) {
       return firstPage();
     }
-    return items.subList(pageNumber*pageSize, items.size());
+    return goToPage(pageNumber-1);
   }
 
-  public List goToPage(int pageNum) {
-    pageNumber = pageNum - 1;
+  private List<T> goToPage(int pageNum) {
+    pageNumber = pageNum;
     if (pageNumber * pageSize <= items.size()) {
-      return items.subList((pageNumber) * pageSize, pageNumber * pageSize + pageSize);
+      return items.subList(pageNumber * pageSize, pageNumber * pageSize + pageSize);
     }
     return items.subList(pageNumber * pageSize, items.size());
   }

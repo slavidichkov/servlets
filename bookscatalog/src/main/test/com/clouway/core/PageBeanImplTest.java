@@ -142,7 +142,7 @@ public class PageBeanImplTest {
       add(new Book("PHP", "Anubis", 9876543210L));
     }};
 
-    List<Book> actualAfterPrevious=pageBean.goToPage(2);
+    List<Book> actualAfterPrevious=pageBean.goToPage(1);
     assertThat(pageBean.getCurrentPageNumber(),is(equalTo(2)));
     assertThat(actualAfterPrevious,is(equalTo(expected)));
   }
