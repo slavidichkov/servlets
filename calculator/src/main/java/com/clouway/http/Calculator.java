@@ -57,8 +57,7 @@ public class Calculator extends HttpServlet {
     }
 
     private boolean  isLastSymbolOperator(String value) {
-        String s = String.valueOf(value.charAt(value.length() - 1));
-        return s.matches("[-+*/]");
+        return value.substring(value.length() - 1).matches("[-+*/]");
     }
 
     private boolean isNumber(String value) {
