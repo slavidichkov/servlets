@@ -12,6 +12,7 @@ import java.util.Set;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class AuthorizationModule extends AbstractModule {
+  @Override
   protected void configure() {
   }
 

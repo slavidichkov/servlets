@@ -15,7 +15,7 @@ public class ServletsModule extends ServletModule {
     filter("/*").through(ErrorFilter.class);
     filter("/*").through(SecurityFilter.class);
 
-    serve("*/").with(Home.class);
+    serve("/").with(Home.class);
     serve("/errorpage").with(ErrorPage.class);
     serve("/login").with(Login.class);
     serve("/logout").with(Logout.class);
