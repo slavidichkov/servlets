@@ -1,6 +1,7 @@
 package com.clouway.http;
 
 import com.clouway.adapter.persistence.sql.DatabaseException;
+import com.google.inject.Singleton;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,6 +16,7 @@ import java.io.IOException;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class ErrorFilter implements Filter {
   public void init(FilterConfig filterConfig) throws ServletException {
 

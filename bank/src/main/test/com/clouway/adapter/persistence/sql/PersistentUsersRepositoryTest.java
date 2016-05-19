@@ -4,7 +4,6 @@ import com.clouway.adapter.persistence.sql.util.DatabaseCleaner;
 import com.clouway.adapter.persistence.sql.util.TestingDatasource;
 import com.clouway.core.User;
 import com.google.common.base.Optional;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,9 +21,10 @@ public class PersistentUsersRepositoryTest {
 
   @Before
   public void setUp() {
-    DataSource dataSource = new TestingDatasource().get();
+    DataSource dataSource=new TestingDatasource().get();
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts").cleanUp();
-    usersRepository = new PersistentUsersRepository(new DatabaseHelper(dataSource));
+    DatabaseHelper databaseHelper=new DatabaseHelperImpl(dataSource);
+    usersRepository = new PersistentUsersRepository(databaseHelper);
   }
 
   @Test

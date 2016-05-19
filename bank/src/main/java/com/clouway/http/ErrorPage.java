@@ -1,6 +1,7 @@
 package com.clouway.http;
 
 import com.clouway.core.LoggedUsersRepository;
+import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -20,6 +21,7 @@ import java.util.Map;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class ErrorPage extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

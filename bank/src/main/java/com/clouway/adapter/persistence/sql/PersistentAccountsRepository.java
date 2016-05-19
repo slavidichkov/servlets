@@ -3,6 +3,7 @@ package com.clouway.adapter.persistence.sql;
 import com.clouway.core.AccountsRepository;
 import com.clouway.core.InsufficientAvailability;
 import com.clouway.core.User;
+import com.google.inject.Inject;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -13,6 +14,7 @@ import java.sql.*;
 public class PersistentAccountsRepository implements AccountsRepository{
     private final DataSource dataSource;
 
+    @Inject
     public PersistentAccountsRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }

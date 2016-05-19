@@ -1,11 +1,15 @@
 package com.clouway.http;
 
+import com.clouway.adapter.persistence.sql.PersistentLoggedUsersRepository;
 import com.clouway.core.*;
 
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -32,6 +36,12 @@ public class AccountManagerTest {
     private final String sid="1234567890";
     private final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
 
+    private CurrentUserProvider currentUserProvider=new CurrentUserProvider() {
+        public Optional<CurrentUser> get(SidGatherer sidGatherer) {
+            return Optional.of(new CurrentUser(user,sid));
+        }
+    };
+
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -41,26 +51,10 @@ public class AccountManagerTest {
     @Mock
     LoggedUsersRepository loggedUsersRepository;
 
+
     @Before
     public void setUp() throws Exception {
-        DependencyManager.addDependencies(AccountsRepositoryFactory.class, new AccountsRepositoryFactory() {
-            public AccountsRepository getAccountRepository() {
-                return accountsRepository;
-            }
-        });
-        DependencyManager.addDependencies(CurrentUserProvider.class, new CurrentUserProvider() {
-            public Optional<CurrentUser> get(SidGatherer sidGatherer) {
-                return Optional.of(new CurrentUser(user,sid));
-            }
-        });
-        DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
-            public LoggedUsersRepository getLoggedUsersRepository() {
-                return loggedUsersRepository;
-            }
-        });
-        DependencyManager.addDependencies(UserValidator.class,new RegularExpressionUserValidator());
-
-        accountManager = new AccountManager();
+        accountManager = new AccountManager(accountsRepository,currentUserProvider,loggedUsersRepository);
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();

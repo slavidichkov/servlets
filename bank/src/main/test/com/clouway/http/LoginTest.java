@@ -8,6 +8,9 @@ import com.clouway.http.fakeclasses.FakeSession;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeUIDGenerator;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -46,26 +49,10 @@ public class LoginTest {
     @Mock
     LoggedUsersRepository loggedUsersRepository;
 
+
     @Before
     public void setUp() throws Exception {
-        DependencyManager.addDependencies(UsersRepositoryFactory.class, new UsersRepositoryFactory() {
-            public UsersRepository getUserRepository() {
-                return userRepository;
-            }
-        });
-        DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
-            public SessionsRepository getSessionRepository() {
-                return sessionsRepository;
-            }
-        });
-        DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
-            public LoggedUsersRepository getLoggedUsersRepository() {
-                return loggedUsersRepository;
-            }
-        });
-        DependencyManager.addDependencies(UIDGenerator.class, uidGenerator);
-        DependencyManager.addDependencies(UserValidator.class,new  RegularExpressionUserValidator());
-        login = new Login();
+        login = new Login(userRepository,sessionsRepository,uidGenerator,new RegularExpressionUserValidator());
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();

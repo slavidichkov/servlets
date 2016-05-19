@@ -1,6 +1,6 @@
 package com.clouway.core;
 
-import java.util.Date;
+import com.google.inject.Inject;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
@@ -20,9 +20,7 @@ public class Session {
     this.ID = ID;
     this.userEmail = userEmail;
   }
-
-  public boolean isExpired() {
-    Time time = DependencyManager.getDependency(Time.class);
+  public boolean isExpired(Time time) {
     return sessionExpiresOn < time.now().getTime();
   }
 

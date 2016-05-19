@@ -1,11 +1,12 @@
 package com.clouway.adapter.persistence.sql;
 
-import com.clouway.core.DependencyManager;
-import com.clouway.core.LoggedUsersRepositoryFactory;
+import com.clouway.core.LoggedUsersRepository;
 import com.clouway.core.Session;
 import com.clouway.core.SessionsRepository;
 import com.clouway.core.Time;
+import com.clouway.core.SessionLength;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,18 +16,21 @@ import java.sql.SQLException;
  */
 public class PersistentSessionsRepository implements SessionsRepository {
   private final DatabaseHelper databaseHelper;
-  private final long sessionExpiresTime;
-  private final Time time = DependencyManager.getDependency(Time.class);
-  private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory= DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
+  private final long sessionLength;
+  private final LoggedUsersRepository loggedUsersRepository;
+  private final Time time;
 
-  public PersistentSessionsRepository(DatabaseHelper databaseHelper,long sessionExpiresTime) {
+  @Inject
+  public PersistentSessionsRepository(DatabaseHelper databaseHelper, @SessionLength Long sessionLength, LoggedUsersRepository loggedUsersRepository, Time time) {
     this.databaseHelper = databaseHelper;
-    this.sessionExpiresTime = sessionExpiresTime;
+    this.sessionLength = sessionLength;
+    this.loggedUsersRepository = loggedUsersRepository;
+    this.time = time;
   }
 
   public void register(Session session) {
-    databaseHelper.executeUpdate("INSERT INTO sessions(ID,userEmail,sessionExpiresOn) VALUES (?,?,?)", session.ID, session.userEmail,time.now().getTime()+sessionExpiresTime);
-    loggedUsersRepositoryFactory.getLoggedUsersRepository().login(session.userEmail);
+    databaseHelper.executeUpdate("INSERT INTO sessions(ID,userEmail,sessionExpiresOn) VALUES (?,?,?)", session.ID, session.userEmail,time.now().getTime()+ sessionLength);
+    loggedUsersRepository.login(session.userEmail);
   }
 
   public Optional<Session> getSession(String sessionID) {
@@ -39,10 +43,10 @@ public class PersistentSessionsRepository implements SessionsRepository {
 
   public void remove(Session session) {
     databaseHelper.executeUpdate("DELETE FROM sessions WHERE ID=?", session.ID);
-    loggedUsersRepositoryFactory.getLoggedUsersRepository().logout(session.userEmail);
+   loggedUsersRepository.logout(session.userEmail);
   }
 
   public void updateSessionExpiresOn(String sessionID) {
-    databaseHelper.executeUpdate("UPDATE sessions SET sessionExpiresOn=? WHERE ID=?", time.now().getTime()+sessionExpiresTime,sessionID);
+    databaseHelper.executeUpdate("UPDATE sessions SET sessionExpiresOn=? WHERE ID=?", time.now().getTime()+ sessionLength,sessionID);
   }
 }

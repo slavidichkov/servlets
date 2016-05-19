@@ -2,23 +2,18 @@ package com.clouway.adapter.persistence.sql;
 
 import com.clouway.adapter.persistence.sql.util.DatabaseCleaner;
 import com.clouway.adapter.persistence.sql.util.TestingDatasource;
-import com.clouway.core.DependencyManager;
-import com.clouway.core.LoggedUsersRepository;
-import com.clouway.core.LoggedUsersRepositoryFactory;
 import com.clouway.core.Session;
 import com.clouway.core.Time;
 import com.clouway.core.User;
 import com.google.common.base.Optional;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -27,9 +22,8 @@ import static org.junit.Assert.assertThat;
 public class PersistentSessionsRepositoryTest {
   private PersistentSessionsRepository sessionsRepository;
   private PersistentUsersRepository usersRepository;
-  private FakeTime time=new FakeTime();
   private long timeNow = 1459234212051L;
-  private final long sessionExpiresTime = 1000 * 60 * 60 * 5;
+  private final long sessionLength = 1000 * 60 * 60 * 5;
 
   private class FakeTime implements Time {
     public Date now() {
@@ -45,14 +39,9 @@ public class PersistentSessionsRepositoryTest {
   public void setUp() {
     final DataSource dataSource = new TestingDatasource().get();
     new DatabaseCleaner(dataSource, "sessions", "users", "accounts", "loggedusers").cleanUp();
-    DependencyManager.addDependencies(LoggedUsersRepositoryFactory.class, new LoggedUsersRepositoryFactory() {
-      public LoggedUsersRepository getLoggedUsersRepository() {
-        return new PersistentLoggedUsersRepository(dataSource);
-      }
-    });
-    DependencyManager.addDependencies(Time.class, time);
-    sessionsRepository = new PersistentSessionsRepository(new DatabaseHelper(dataSource), sessionExpiresTime);
-    usersRepository = new PersistentUsersRepository(new DatabaseHelper(dataSource));
+    DatabaseHelper databaseHelper=new DatabaseHelperImpl(dataSource);
+    sessionsRepository = new PersistentSessionsRepository(databaseHelper,sessionLength,new PersistentLoggedUsersRepository(dataSource),new FakeTime());
+    usersRepository = new PersistentUsersRepository(databaseHelper);
   }
 
   @Test
@@ -66,7 +55,7 @@ public class PersistentSessionsRepositoryTest {
 
     Session expectedSession = optSession.get();
     assertThat(session, is(equalTo(expectedSession)));
-    assertThat(expectedSession.getSessionExpiresOn(), is(equalTo(timeNow + sessionExpiresTime)));
+    assertThat(expectedSession.getSessionExpiresOn(), is(equalTo(timeNow + sessionLength)));
   }
 
   @Test

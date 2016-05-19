@@ -4,7 +4,6 @@ import com.clouway.adapter.persistence.sql.util.DatabaseCleaner;
 import com.clouway.adapter.persistence.sql.util.TestingDatasource;
 import com.clouway.core.InsufficientAvailability;
 import com.clouway.core.User;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +21,7 @@ public class PersistentAccountsRepositoryTest {
 
   @Before
   public void setUp() {
-    DataSource dataSource = new TestingDatasource().get();
+    DataSource dataSource = new  TestingDatasource().get();
     new DatabaseCleaner(dataSource, "users", "sessions", "accounts").cleanUp();
     accountsRepository = new PersistentAccountsRepository(dataSource);
   }

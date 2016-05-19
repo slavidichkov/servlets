@@ -1,6 +1,5 @@
 package com.clouway.http.authorization;
 
-
 import com.clouway.core.*;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
@@ -30,118 +29,114 @@ import static org.junit.Assert.*;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class SecurityFilterTest {
-    private SecurityFilter securityFilter;
-    private FakeRequest request;
-    private FakeResponse response;
-    private FakeSession session;
-    final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
-    final String sid = "1234567890";
-    private FakeTime time=new FakeTime();
-    private long timeNow = 1459234212051L;
-    private Set<String> allowedPages = new HashSet<String>(){{
-        add("login");
-    }};
+  private SecurityFilter securityFilter;
+  private FakeRequest request;
+  private FakeResponse response;
+  private FakeSession session;
+  final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
+  final String sid = "1234567890";
+  private FakeTime time = new FakeTime();
+  private long timeNow = 1459234212051L;
+  private Set<String> allowedPages = new HashSet<String>() {{
+    add("login");
+  }};
 
-    private class FakeTime implements Time {
-        public Date now() {
-            return new Date(timeNow);
-        }
-
-        public Date after(int hour) {
-            return new Date(now().getTime() + 1000*60*60*hour);
-        }
+  private class FakeTime implements Time {
+    public Date now() {
+      return new Date(timeNow);
     }
 
-
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery();
-
-    @Mock
-    FilterChain filterChain;
-
-    @Mock
-    SessionsRepository sessionsRepository;
-
-    @Before
-    public void setUp() {
-        DependencyManager.addDependencies(SessionsRepositoryFactory.class, new SessionsRepositoryFactory() {
-            public SessionsRepository getSessionRepository() {
-                return sessionsRepository;
-            }
-        });
-        DependencyManager.addDependencies(Time.class, time);
-
-        securityFilter = new SecurityFilter(allowedPages);
-        session = new FakeSession();
-        request = new FakeRequest(session);
-        response = new FakeResponse();
+    public Date after(int hour) {
+      return new Date(now().getTime() + 1000 * 60 * 60 * hour);
     }
+  }
 
 
-    @Test
-    public void doNotFilterLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
-        final Cookie cookie=new Cookie("sid",sid);
-        final long sessionExpiresOn = timeNow + 10;
-        request.addCookies(cookie);
-        request.setRequestURI("/balance");
+  @Rule
+  public JUnitRuleMockery context = new JUnitRuleMockery();
 
-        context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession(sid);
-            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
-            oneOf(filterChain).doFilter(request, response);
-        }});
+  @Mock
+  FilterChain filterChain;
 
-        securityFilter.doFilter(request, response, filterChain);
-    }
+  @Mock
+  SessionsRepository sessionsRepository;
 
-    @Test
-    public void filterNotLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
-        request.setRequestURI("/balance");
+  @Before
+  public void setUp() {
+    securityFilter = new SecurityFilter(allowedPages,sessionsRepository,time);
+    session = new FakeSession();
+    request = new FakeRequest(session);
+    response = new FakeResponse();
+  }
 
-        context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession("");
-            will(returnValue(Optional.absent()));
-            never(filterChain).doFilter(request, response);
-        }});
 
-        securityFilter.doFilter(request, response, filterChain);
+  @Test
+  public void doNotFilterLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
+    final Cookie cookie = new Cookie("sid", sid);
+    final long sessionExpiresOn = timeNow + 10;
+    request.addCookies(cookie);
+    request.setRequestURI("/balance");
 
-        assertThat(response.getRedirectUrl(), is(equalTo("/")));
-    }
+    context.checking(new Expectations() {{
+      oneOf(sessionsRepository).getSession(sid);
+      will(returnValue(Optional.of(new Session(sid, user.email, sessionExpiresOn))));
+      oneOf(sessionsRepository).updateSessionExpiresOn(sid);
+      oneOf(filterChain).doFilter(request, response);
+    }});
 
-    @Test
-    public void filterLoggedUserTryingToOpenAllowedPage() throws IOException, ServletException {
-        final Cookie cookie=new Cookie("sid",sid);
-        final long sessionExpiresOn = timeNow + 10;
-        request.addCookies(cookie);
-        request.setRequestURI("/login");
+    securityFilter.doFilter(request, response, filterChain);
+  }
 
-        context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession(sid);
-            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
-            never(filterChain).doFilter(request, response);
-        }});
+  @Test
+  public void filterNotLoggedUserTryToOpenNotAllowedPage() throws IOException, ServletException {
+    request.setRequestURI("/balance");
 
-        securityFilter.doFilter(request, response, filterChain);
+    context.checking(new Expectations() {{
+      oneOf(sessionsRepository).getSession("");
+      will(returnValue(Optional.absent()));
+      never(filterChain).doFilter(request, response);
+    }});
 
-        assertThat(response.getRedirectUrl(), is(equalTo("/")));
-    }
+    securityFilter.doFilter(request, response, filterChain);
 
-    @Test
-    public void filterLoggedUserWithExpiresSession() throws IOException, ServletException {
-        final Cookie cookie=new Cookie("sid",sid);
-        final long sessionExpiresOn = timeNow - 10;
-        request.addCookies(cookie);
-        request.setRequestURI("/balance");
+    assertThat(response.getRedirectUrl(), is(equalTo("/")));
+  }
 
-        context.checking(new Expectations() {{
-            oneOf(sessionsRepository).getSession(sid);
-            will(returnValue(Optional.of(new Session(sid,user.email,sessionExpiresOn))));
-            never(filterChain).doFilter(request, response);
-        }});
+  @Test
+  public void filterLoggedUserTryingToOpenAllowedPage() throws IOException, ServletException {
+    final Cookie cookie = new Cookie("sid", sid);
+    final long sessionExpiresOn = timeNow + 10;
+    request.addCookies(cookie);
+    request.setRequestURI("/login");
 
-        securityFilter.doFilter(request, response, filterChain);
+    context.checking(new Expectations() {{
+      oneOf(sessionsRepository).getSession(sid);
+      will(returnValue(Optional.of(new Session(sid, user.email, sessionExpiresOn))));
+      oneOf(sessionsRepository).updateSessionExpiresOn(sid);
+      never(filterChain).doFilter(request, response);
+    }});
 
-        assertThat(response.getRedirectUrl(), is(equalTo("/logout")));
-    }
+    securityFilter.doFilter(request, response, filterChain);
+
+    assertThat(response.getRedirectUrl(), is(equalTo("/")));
+  }
+
+  @Test
+  public void filterLoggedUserWithExpiresSession() throws IOException, ServletException {
+    final Cookie cookie = new Cookie("sid", sid);
+    final long sessionExpiresOn = timeNow - 10;
+    request.addCookies(cookie);
+    request.setRequestURI("/balance");
+
+    context.checking(new Expectations() {{
+      oneOf(sessionsRepository).getSession(sid);
+      will(returnValue(Optional.of(new Session(sid, user.email, sessionExpiresOn))));
+      oneOf(sessionsRepository).remove(new Session(sid, user.email));
+      never(filterChain).doFilter(request, response);
+    }});
+
+    securityFilter.doFilter(request, response, filterChain);
+
+    assertThat(response.getRedirectUrl(), is(equalTo("/login")));
+  }
 }

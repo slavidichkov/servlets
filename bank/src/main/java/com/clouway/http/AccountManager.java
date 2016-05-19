@@ -4,6 +4,8 @@ import com.clouway.adapter.persistence.sql.DatabaseException;
 import com.clouway.core.*;
 import com.clouway.http.authorization.CookieSidGatherer;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import freemarker.template.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,24 +20,32 @@ import java.util.Map;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class AccountManager extends HttpServlet {
-    private final AccountsRepositoryFactory accountsRepositoryFactory =DependencyManager.getDependency(AccountsRepositoryFactory.class);
-    private final CurrentUserProvider currentUserProvider =DependencyManager.getDependency(CurrentUserProvider.class);
-    private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
+    private final AccountsRepository accountsRepository;
+    private final CurrentUserProvider currentUserProvider;
+    private LoggedUsersRepository loggedUsersRepository;
     private final String amountErrorMessage = " amount is not correct";
+
+    @Inject
+    public AccountManager(AccountsRepository accountsRepository, CurrentUserProvider currentUserProvider, LoggedUsersRepository loggedUsersRepository) {
+        this.accountsRepository = accountsRepository;
+        this.currentUserProvider = currentUserProvider;
+        this.loggedUsersRepository = loggedUsersRepository;
+    }
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, DatabaseException {
         CurrentUser currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies())).get();
-        Double userBalance = accountsRepositoryFactory.getAccountRepository().getBalance(currentUser.getUser());
+        Double userBalance = accountsRepository.getBalance(currentUser.getUser());
         printPage(resp.getWriter(), userBalance,"");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        AccountsRepository accountsRepository= accountsRepositoryFactory.getAccountRepository();
 
         String transactionType = req.getParameter("transactionType");
         String amount = req.getParameter("amount");
@@ -69,7 +79,6 @@ public class AccountManager extends HttpServlet {
     }
 
     private void printPage(PrintWriter writer, Double balance,String errorMessage) {
-        LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
 
         Configuration cfg = new Configuration();
         cfg.setClassForTemplateLoading(AccountManager.class, "");

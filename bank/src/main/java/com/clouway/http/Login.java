@@ -3,6 +3,8 @@ package com.clouway.http;
 
 import com.clouway.core.*;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -25,12 +27,20 @@ import static com.clouway.core.ValidationUser.newValidationUser;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class Login extends HttpServlet {
-    private final UsersRepositoryFactory userRepositoryFactory = DependencyManager.getDependency(UsersRepositoryFactory.class);
-    private final SessionsRepositoryFactory sessionsRepositoryFactory = DependencyManager.getDependency(SessionsRepositoryFactory.class);
-    private final UIDGenerator uidGenerator = DependencyManager.getDependency(UIDGenerator.class);
-    private UserValidator validator = DependencyManager.getDependency(UserValidator.class);
-    private  final  UsersRepository userRepository = userRepositoryFactory.getUserRepository();
+    private final UsersRepository usersRepository;
+    private final SessionsRepository sessionsRepository;
+    private final UIDGenerator uidGenerator;
+    private UserValidator validator;
+
+    @Inject
+    public Login(UsersRepository usersRepository, SessionsRepository sessionsRepository, UIDGenerator uidGenerator, UserValidator validator) {
+        this.usersRepository = usersRepository;
+        this.sessionsRepository = sessionsRepository;
+        this.uidGenerator = uidGenerator;
+        this.validator = validator;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -57,13 +67,12 @@ public class Login extends HttpServlet {
             return;
         }
 
-        Optional<User> optUser = userRepository.getUser(email);
+        Optional<User> optUser = usersRepository.getUser(email);
 
         if (optUser.isPresent() && password.equals(optUser.get().password)) {
             User user=optUser.get();
             String sid = uidGenerator.randomID();
-            SessionsRepository sessionRepository = sessionsRepositoryFactory.getSessionRepository();
-            sessionRepository.register(new Session(sid, user.email));
+            sessionsRepository.register(new Session(sid, user.email));
             Cookie cookie = new Cookie("sid", sid);
             resp.addCookie(cookie);
             resp.sendRedirect("/balance");

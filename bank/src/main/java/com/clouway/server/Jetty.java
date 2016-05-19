@@ -1,8 +1,13 @@
 package com.clouway.server;
 
-import com.clouway.http.*;
+import com.clouway.core.ServletContextListener;
+import com.google.inject.servlet.GuiceFilter;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 
 
 public class Jetty {
@@ -14,9 +19,11 @@ public class Jetty {
     }
 
     public void start() {
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        ServletContextHandler context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+        context.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+        context.addServlet(DefaultServlet.class, "/");
         context.setContextPath("/");
-        context.addEventListener(new HttpServletContextListener());
+        context.addEventListener(new ServletContextListener());
         server.setHandler(context);
         try {
             server.start();

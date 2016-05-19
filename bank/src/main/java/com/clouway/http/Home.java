@@ -3,6 +3,8 @@ package com.clouway.http;
 import com.clouway.core.*;
 import com.clouway.http.authorization.CookieSidGatherer;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -22,9 +24,16 @@ import java.util.Map;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class Home extends HttpServlet{
-  private CurrentUserProvider currentUserProvider = DependencyManager.getDependency(CurrentUserProvider.class);
-  private LoggedUsersRepositoryFactory loggedUsersRepositoryFactory=DependencyManager.getDependency(LoggedUsersRepositoryFactory.class);
+  private CurrentUserProvider currentUserProvider;
+  private LoggedUsersRepository loggedUsersRepository;
+
+  @Inject
+  public Home(CurrentUserProvider currentUserProvider, LoggedUsersRepository loggedUsersRepository) {
+    this.currentUserProvider = currentUserProvider;
+    this.loggedUsersRepository = loggedUsersRepository;
+  }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,8 +42,6 @@ public class Home extends HttpServlet{
   }
 
   private void printPage(PrintWriter writer, Optional<CurrentUser> currentUser) {
-    LoggedUsersRepository loggedUsersRepository=loggedUsersRepositoryFactory.getLoggedUsersRepository();
-
     Configuration cfg = new Configuration();
     cfg.setClassForTemplateLoading(Home.class, "");
     cfg.setIncompatibleImprovements(new Version(2, 3, 20));

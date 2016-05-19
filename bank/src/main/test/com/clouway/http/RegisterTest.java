@@ -4,6 +4,9 @@ import com.clouway.core.*;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -28,11 +31,13 @@ public class RegisterTest {
     private Register register;
     private FakeRequest request;
     private FakeResponse response;
+    private Injector injector;
+
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
     @Mock
-    UsersRepository repository;
+    UsersRepository usersRepository;
 
     @Mock
     UserValidator userValidator;
@@ -42,18 +47,7 @@ public class RegisterTest {
 
     @Before
     public void setUp() throws Exception {
-        DependencyManager.addDependencies(UsersRepositoryFactory.class, new UsersRepositoryFactory() {
-            public UsersRepository getUserRepository() {
-                return repository;
-            }
-        });
-        DependencyManager.addDependencies(UserValidator.class,userValidator);
-        DependencyManager.addDependencies(AccountsRepositoryFactory.class, new AccountsRepositoryFactory() {
-            public AccountsRepository getAccountRepository() {
-                return accountsRepository;
-            }
-        });
-        register = new Register();
+        register = new Register(usersRepository,accountsRepository,userValidator);
         request =new FakeRequest();
         response = new FakeResponse();
     }
@@ -84,9 +78,9 @@ public class RegisterTest {
         context.checking(new Expectations() {{
             oneOf(userValidator).validate(validationUser);
             will(returnValue(new HashMap<String,String>()));
-            oneOf(repository).getUser("ivan@abv.bg");
+            oneOf(usersRepository).getUser("ivan@abv.bg");
             will(returnValue(Optional.absent()));
-            oneOf(repository).register(user);
+            oneOf(usersRepository).register(user);
             oneOf(accountsRepository).register(user);
         }});
 
@@ -122,9 +116,9 @@ public class RegisterTest {
         context.checking(new Expectations() {{
             oneOf(userValidator).validate(validationUser);
             will(returnValue(new HashMap<String,String>()));
-            oneOf(repository).getUser("ivan@abv.bg");
+            oneOf(usersRepository).getUser("ivan@abv.bg");
             will(returnValue(Optional.of(user)));
-            never(repository).register(user);
+            never(usersRepository).register(user);
         }});
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();

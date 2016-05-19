@@ -2,7 +2,6 @@ package com.clouway.adapter.persistence.sql;
 
 import com.clouway.adapter.persistence.sql.util.DatabaseCleaner;
 import com.clouway.adapter.persistence.sql.util.TestingDatasource;
-import com.clouway.core.User;
 import org.junit.Before;
 import org.junit.Test;
 

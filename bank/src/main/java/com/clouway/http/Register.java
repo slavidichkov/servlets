@@ -2,6 +2,8 @@ package com.clouway.http;
 
 import com.clouway.core.*;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -23,10 +25,18 @@ import static com.clouway.core.ValidationUser.newValidationUser;
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
+@Singleton
 public class Register extends HttpServlet {
-    private UsersRepositoryFactory usersRepositoryFactory = DependencyManager.getDependency(UsersRepositoryFactory.class);
-    private AccountsRepositoryFactory accountsRepositoryFactory= DependencyManager.getDependency(AccountsRepositoryFactory.class);
-    private UserValidator validator=DependencyManager.getDependency(UserValidator.class);
+    private UsersRepository usersRepository;
+    private AccountsRepository accountsRepository;
+    private UserValidator validator;
+
+    @Inject
+    public Register(UsersRepository usersRepository, AccountsRepository accountsRepository, UserValidator validator) {
+        this.usersRepository = usersRepository;
+        this.accountsRepository = accountsRepository;
+        this.validator = validator;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -38,8 +48,6 @@ public class Register extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        UsersRepository userRepository = usersRepositoryFactory.getUserRepository();
-        AccountsRepository accountsRepository=accountsRepositoryFactory.getAccountRepository();
 
         String name = req.getParameter("name");
         String password = req.getParameter("password");
@@ -64,10 +72,10 @@ public class Register extends HttpServlet {
             printPage(resp.getWriter(), errors);
             return;
         }
-        Optional<User> optUser = userRepository.getUser(email);
+        Optional<User> optUser = usersRepository.getUser(email);
         if (!optUser.isPresent()) {
             User user = new User(name, nickName, email, password, city, new Integer(age));
-            userRepository.register(user);
+            usersRepository.register(user);
             accountsRepository.register(user);
             resp.sendRedirect("/login");
         } else {

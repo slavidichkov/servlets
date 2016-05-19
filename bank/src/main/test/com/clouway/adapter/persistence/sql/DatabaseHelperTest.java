@@ -2,7 +2,6 @@ package com.clouway.adapter.persistence.sql;
 
 import com.clouway.adapter.persistence.sql.util.TestUser;
 import com.clouway.adapter.persistence.sql.util.TestingDatasource;
-import com.clouway.core.User;
 import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -19,14 +18,13 @@ import static org.junit.Assert.assertThat;
  * @author Slavi Dichkov (slavidichkof@gmail.com)
  */
 public class DatabaseHelperTest {
-  private DatabaseHelper databaseHelper;
-  private DataSource dataSource;
+  private DatabaseHelperImpl databaseHelper;
 
   @Before
   public void setUp() throws SQLException {
-    dataSource = new TestingDatasource().get();
+    DataSource dataSource = new TestingDatasource().get();
     dataSource.getConnection().createStatement().execute("CREATE TABLE helperTests(name VARCHAR(40),city VARCHAR(30))");
-    databaseHelper = new DatabaseHelper(dataSource);
+    databaseHelper = new DatabaseHelperImpl(dataSource);
   }
 
   @Test
@@ -58,6 +56,6 @@ public class DatabaseHelperTest {
 
   @After
   public void tearDown() throws SQLException {
-    dataSource.getConnection().createStatement().execute("DROP TABLE helperTests");
+    new TestingDatasource().get().getConnection().createStatement().execute("DROP TABLE helperTests");
   }
 }
