@@ -5,6 +5,8 @@ import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -45,7 +47,7 @@ public class LogoutTest {
 
     @Before
     public void setUp() throws Exception {
-        logout = new Logout(sessionsRepository, currentUser);
+        logout = new Logout(sessionsRepository, Providers.of(currentUser));
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();

@@ -2,6 +2,7 @@ package com.clouway.http;
 
 import com.clouway.core.*;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import javax.servlet.ServletException;
@@ -16,18 +17,19 @@ import java.io.IOException;
 @Singleton
 public class Logout extends HttpServlet {
     private final SessionsRepository sessionsRepository;
-    private final CurrentUser currentUser;
+    private final Provider<CurrentUser> currentUserProvider;
 
     @Inject
-    public Logout(SessionsRepository sessionsRepository, CurrentUser currentUser) {
+    public Logout(SessionsRepository sessionsRepository, Provider<CurrentUser> currentUser) {
         this.sessionsRepository = sessionsRepository;
-        this.currentUser = currentUser;
+        this.currentUserProvider = currentUser;
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        CurrentUser currentUser=currentUserProvider.get();
+        if (currentUser.getUser() !=null) {
 
-        if (currentUser !=null) {
             String sid = currentUser.getSessionID();
             User user= currentUser.getUser();
             sessionsRepository.remove(new Session(sid,user.email));

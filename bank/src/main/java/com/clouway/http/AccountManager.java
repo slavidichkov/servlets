@@ -4,6 +4,7 @@ import com.clouway.adapter.persistence.sql.DatabaseException;
 import com.clouway.core.*;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import freemarker.template.*;
 import javax.servlet.ServletException;
@@ -22,14 +23,14 @@ import java.util.Map;
 @Singleton
 public class AccountManager extends HttpServlet {
     private final AccountsRepository accountsRepository;
-    private final CurrentUser currentUser;
+    private final Provider<CurrentUser> currentUserProvider;
     private LoggedUsersRepository loggedUsersRepository;
     private final String amountErrorMessage = " amount is not correct";
 
     @Inject
-    public AccountManager(AccountsRepository accountsRepository, CurrentUser currentUser, LoggedUsersRepository loggedUsersRepository) {
+    public AccountManager(AccountsRepository accountsRepository, Provider<CurrentUser> currentUserProvider, LoggedUsersRepository loggedUsersRepository) {
         this.accountsRepository = accountsRepository;
-        this.currentUser = currentUser;
+        this.currentUserProvider = currentUserProvider;
         this.loggedUsersRepository = loggedUsersRepository;
     }
 
@@ -37,7 +38,7 @@ public class AccountManager extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, DatabaseException {
-        Double userBalance = accountsRepository.getBalance(currentUser.getUser());
+        Double userBalance = accountsRepository.getBalance(currentUserProvider.get().getUser());
         printPage(resp.getWriter(), userBalance,"");
     }
 
@@ -48,7 +49,7 @@ public class AccountManager extends HttpServlet {
         String transactionType = req.getParameter("transactionType");
         String amount = req.getParameter("amount");
 
-        User user = currentUser.getUser();
+        User user = currentUserProvider.get().getUser();
 
         String errorMessage="";
         Double balance = accountsRepository.getBalance(user);

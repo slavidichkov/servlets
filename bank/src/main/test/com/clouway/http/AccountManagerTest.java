@@ -5,6 +5,7 @@ import com.clouway.core.*;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
+import com.google.inject.util.Providers;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -46,7 +47,7 @@ public class AccountManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        accountManager = new AccountManager(accountsRepository, currentUser,loggedUsersRepository);
+        accountManager = new AccountManager(accountsRepository, Providers.of(currentUser),loggedUsersRepository);
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();

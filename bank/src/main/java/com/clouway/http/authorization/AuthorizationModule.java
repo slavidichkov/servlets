@@ -35,6 +35,6 @@ public class AuthorizationModule extends AbstractModule {
   @Provides
   @AllowedPages
   public Set<String> getAllowedPages() {
-    return Sets.newHashSet("login","register");
+    return Sets.newHashSet("login","registration");
   }
 }

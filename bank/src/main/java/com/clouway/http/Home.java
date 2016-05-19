@@ -2,6 +2,7 @@ package com.clouway.http;
 
 import com.clouway.core.*;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -24,12 +25,12 @@ import java.util.Map;
  */
 @Singleton
 public class Home extends HttpServlet{
-  private CurrentUser currentUser;
+  private Provider<CurrentUser> currentUserProvider;
   private LoggedUsersRepository loggedUsersRepository;
 
   @Inject
-  public Home(CurrentUser currentUser, LoggedUsersRepository loggedUsersRepository) {
-    this.currentUser = currentUser;
+  public Home(Provider<CurrentUser> currentUserProvider, LoggedUsersRepository loggedUsersRepository) {
+    this.currentUserProvider = currentUserProvider;
     this.loggedUsersRepository = loggedUsersRepository;
   }
 
@@ -49,7 +50,7 @@ public class Home extends HttpServlet{
     Map<String, Object> input = new HashMap<String, Object>();
     input.put("loggedUsers", loggedUsersRepository.getCount());
 
-    if (currentUser !=null) {
+    if (currentUserProvider.get().getUser() == null) {
       input.put("links","<a href=\"login\">Login</a> </br> <a href=\"registration\">Registration</a>");
     } else {
       input.put("links","<a href=\"balance\">Account manager</a> </br> <a href=\"logout\">Logout</a>");

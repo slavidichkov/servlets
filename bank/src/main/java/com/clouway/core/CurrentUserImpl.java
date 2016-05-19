@@ -1,6 +1,7 @@
 package com.clouway.core;
 
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import javax.servlet.http.Cookie;
@@ -15,6 +16,7 @@ public class CurrentUserImpl implements CurrentUser {
   private final UsersRepository userRepository;
   private final Provider<HttpServletRequest> requestProvider;
 
+  @Inject
   public CurrentUserImpl(SessionsRepository sessionRepository, UsersRepository userRepository, Provider<HttpServletRequest> requestProvider) {
     this.sessionRepository = sessionRepository;
     this.userRepository = userRepository;
