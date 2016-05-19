@@ -4,9 +4,6 @@ import com.clouway.core.*;
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
-import com.google.common.base.Optional;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
@@ -36,11 +33,6 @@ public class LogoutTest {
     final String sid = "1234567890";
     private Injector injector;
 
-    private CurrentUserProvider currentUserProvider=new CurrentUserProvider() {
-        public Optional<CurrentUser> get(SidGatherer sidGatherer) {
-            return Optional.of(new CurrentUser(user,sid));
-        }
-    };
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -49,11 +41,11 @@ public class LogoutTest {
     SessionsRepository sessionsRepository;
 
     @Mock
-    LoggedUsersRepository loggedUsersRepository;
+    CurrentUser currentUser;
 
     @Before
     public void setUp() throws Exception {
-        logout = new Logout(sessionsRepository,currentUserProvider);
+        logout = new Logout(sessionsRepository, currentUser);
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();
@@ -66,6 +58,10 @@ public class LogoutTest {
         request.addCookies(cookie);
 
         context.checking(new Expectations() {{
+            oneOf(currentUser).getSessionID();
+            will(returnValue(sid));
+            oneOf(currentUser).getUser();
+            will(returnValue(user));
             oneOf(sessionsRepository).remove(new Session(sid,user.email));
         }});
 

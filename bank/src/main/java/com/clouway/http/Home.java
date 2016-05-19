@@ -1,8 +1,6 @@
 package com.clouway.http;
 
 import com.clouway.core.*;
-import com.clouway.http.authorization.CookieSidGatherer;
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import freemarker.template.Configuration;
@@ -26,22 +24,21 @@ import java.util.Map;
  */
 @Singleton
 public class Home extends HttpServlet{
-  private CurrentUserProvider currentUserProvider;
+  private CurrentUser currentUser;
   private LoggedUsersRepository loggedUsersRepository;
 
   @Inject
-  public Home(CurrentUserProvider currentUserProvider, LoggedUsersRepository loggedUsersRepository) {
-    this.currentUserProvider = currentUserProvider;
+  public Home(CurrentUser currentUser, LoggedUsersRepository loggedUsersRepository) {
+    this.currentUser = currentUser;
     this.loggedUsersRepository = loggedUsersRepository;
   }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    Optional<CurrentUser> currentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
-    printPage(resp.getWriter(),currentUser);
+    printPage(resp.getWriter());
   }
 
-  private void printPage(PrintWriter writer, Optional<CurrentUser> currentUser) {
+  private void printPage(PrintWriter writer) {
     Configuration cfg = new Configuration();
     cfg.setClassForTemplateLoading(Home.class, "");
     cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -52,7 +49,7 @@ public class Home extends HttpServlet{
     Map<String, Object> input = new HashMap<String, Object>();
     input.put("loggedUsers", loggedUsersRepository.getCount());
 
-    if (!currentUser.isPresent()) {
+    if (currentUser !=null) {
       input.put("links","<a href=\"login\">Login</a> </br> <a href=\"registration\">Registration</a>");
     } else {
       input.put("links","<a href=\"balance\">Account manager</a> </br> <a href=\"logout\">Logout</a>");

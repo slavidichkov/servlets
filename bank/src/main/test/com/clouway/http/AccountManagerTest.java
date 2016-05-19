@@ -1,15 +1,10 @@
 package com.clouway.http;
 
-import com.clouway.adapter.persistence.sql.PersistentLoggedUsersRepository;
 import com.clouway.core.*;
 
 import com.clouway.http.fakeclasses.FakeRequest;
 import com.clouway.http.fakeclasses.FakeResponse;
 import com.clouway.http.fakeclasses.FakeSession;
-import com.google.common.base.Optional;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -36,12 +31,6 @@ public class AccountManagerTest {
     private final String sid="1234567890";
     private final User user = new User("ivan", "ivan1313", "ivan@abv.bg", "ivan123", "sliven", 23);
 
-    private CurrentUserProvider currentUserProvider=new CurrentUserProvider() {
-        public Optional<CurrentUser> get(SidGatherer sidGatherer) {
-            return Optional.of(new CurrentUser(user,sid));
-        }
-    };
-
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -51,10 +40,13 @@ public class AccountManagerTest {
     @Mock
     LoggedUsersRepository loggedUsersRepository;
 
+    @Mock
+    CurrentUser currentUser;
+
 
     @Before
     public void setUp() throws Exception {
-        accountManager = new AccountManager(accountsRepository,currentUserProvider,loggedUsersRepository);
+        accountManager = new AccountManager(accountsRepository, currentUser,loggedUsersRepository);
         session = new FakeSession();
         request = new FakeRequest(session);
         response = new FakeResponse();
@@ -66,6 +58,8 @@ public class AccountManagerTest {
         request.addCookies(cookie);
 
         context.checking(new Expectations() {{
+            oneOf(currentUser).getUser();
+            will(returnValue(user));
             oneOf(loggedUsersRepository).getCount();
             will(returnValue(1));
             oneOf(accountsRepository).getBalance(user);
@@ -90,6 +84,8 @@ public class AccountManagerTest {
         request.setParameter("amount", "23.12");
 
         context.checking(new Expectations() {{
+            oneOf(currentUser).getUser();
+            will(returnValue(user));
             oneOf(loggedUsersRepository).getCount();
             will(returnValue(1));
             oneOf(accountsRepository).withdraw(user,23.12);
@@ -116,6 +112,8 @@ public class AccountManagerTest {
         request.setParameter("amount", "23.12");
 
         context.checking(new Expectations() {{
+            oneOf(currentUser).getUser();
+            will(returnValue(user));
             oneOf(loggedUsersRepository).getCount();
             will(returnValue(1));
             oneOf(accountsRepository).deposit(user,23.12);

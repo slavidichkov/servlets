@@ -3,7 +3,10 @@ package com.clouway.core;
 import com.clouway.adapter.persistence.sql.PersistenceModule;
 import com.clouway.http.authorization.AuthorizationModule;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Slavi Dichkov (slavidichkof@gmail.com)
@@ -21,7 +24,7 @@ public class ApplicationModule extends AbstractModule {
   }
 
   @Provides
-  public CurrentUserProvider getCurrentUserProvider(SessionsRepository sessionsRepository,UsersRepository usersRepository){
-    return new CurrentUserProviderImpl(sessionsRepository,usersRepository);
+  public CurrentUser getCurrentUser(SessionsRepository sessionsRepository, UsersRepository usersRepository, Provider<HttpServletRequest> requestProvider){
+    return new CurrentUserImpl(sessionsRepository,usersRepository,requestProvider);
   }
 }

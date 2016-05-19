@@ -1,8 +1,6 @@
 package com.clouway.http;
 
 import com.clouway.core.*;
-import com.clouway.http.authorization.CookieSidGatherer;
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -18,21 +16,20 @@ import java.io.IOException;
 @Singleton
 public class Logout extends HttpServlet {
     private final SessionsRepository sessionsRepository;
-    private final CurrentUserProvider currentUserProvider;
+    private final CurrentUser currentUser;
 
     @Inject
-    public Logout(SessionsRepository sessionsRepository, CurrentUserProvider currentUserProvider) {
+    public Logout(SessionsRepository sessionsRepository, CurrentUser currentUser) {
         this.sessionsRepository = sessionsRepository;
-        this.currentUserProvider = currentUserProvider;
+        this.currentUser = currentUser;
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<CurrentUser> optCurrentUser = currentUserProvider.get(new CookieSidGatherer(req.getCookies()));
 
-        if (optCurrentUser.isPresent()) {
-            String sid = optCurrentUser.get().getSessionID();
-            User user=optCurrentUser.get().getUser();
+        if (currentUser !=null) {
+            String sid = currentUser.getSessionID();
+            User user= currentUser.getUser();
             sessionsRepository.remove(new Session(sid,user.email));
         }
         resp.sendRedirect("/");
